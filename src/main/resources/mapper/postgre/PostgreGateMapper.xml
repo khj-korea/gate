@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tricycle.gate.mapper.postgre.PostgreGateMapper">
+    <select id="getPostgreTables" resultType="java.util.Map">
+        <!--SHOW TABLES-->
+        SELECT table_name FROM information_schema.tables WHERE table_schema = 'ecomms'
+    </select>
+
+    <select id="getGateMappingTables" resultType="java.util.Map">
+        SELECT *
+        FROM ecomms.tmk_gate_mapping
+    </select>
+
+    <select id="getPrdInfoByPrdno" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT prd.pcode
+            ,prd.prd_cd as prst_cd
+            ,prd.color_cd
+        FROM ecomms.tpd_prd prd
+        WHERE prd.prd_no = #{prdNo}::int
+    </select>
+</mapper>

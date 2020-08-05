@@ -1,0 +1,16 @@
+package com.tricycle.gate.mapper.postgre;
+
+import com.tricycle.gate.config.PostgreConnMapper;
+
+import java.util.List;
+import java.util.Map;
+
+@PostgreConnMapper
+public interface PostgreGateMapper {
+
+    List<Map<String, Object>> getPostgreTables();
+
+    List<Map<String, Object>> getGateMappingTables();
+
+    Map<String, Object> getPrdInfoByPrdno(String prdNo);
+}
