@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 @Controller
 @Slf4j
@@ -24,7 +25,7 @@ public class GateController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String getGatePage(Model model, final HttpSession session, HttpServletResponse response, HttpServletRequest request) {
 
-		gateService.getSample(1);
+		//gateService.getSample(1);
 
 		String redirectUrl = "";
 
@@ -33,11 +34,12 @@ public class GateController {
 
 		if (null != redirectUrl && 0 < redirectUrl.length()) {
 
-			redirectUrl = redirectUrl.replace("http://", "");
-			redirectUrl = redirectUrl.replace("https://", "");
+			redirectUrl = redirectUrl.replace("http:", "");
+			redirectUrl = redirectUrl.replace("https:", "");
 
 			// redirect url정상시 해당 url 이동
-			return "redirect://" + redirectUrl;
+			return "redirect:" + redirectUrl;
+			//response.sendRedirect(redirectUrl);
 		} else {
 			// 에러.. 기존 매핑 url로 이동
 			return "redirect://www.halfclub.com";

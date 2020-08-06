@@ -13,4 +13,6 @@ public interface PostgreGateMapper {
     List<Map<String, Object>> getGateMappingTables();
 
     Map<String, Object> getPrdInfoByPrdno(String prdNo);
+
+    Map<String, Object> getPartnerIdDetail(String partnerId);
 }

@@ -9,4 +9,16 @@
     <select id="getTables" resultType="java.util.Map">
         SHOW TABLES
     </select>
+    
+    <insert id="insertPartnerConnCount" parameterType="java.util.Map">
+        INSERT INTO ecomms.tsy_partner_conn (
+            partner_id
+            ,site_cd
+            ,device_cd
+        ) VALUES (
+            #{partnerId}
+            ,#{siteCd}
+            ,#{deviceCd}
+        )
+    </insert>
 </mapper>
