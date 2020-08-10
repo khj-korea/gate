@@ -1,15 +1,67 @@
-plugins {
-	id 'org.springframework.boot' version '2.3.2.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'java'
-	id 'war'
+buildscript {
+	repositories {
+		mavenCentral()
+		jcenter()
+		maven { url "https://plugins.gradle.org/m2/" }
+		
+	}
+	dependencies {
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${pluginSpringBootGradle}"
+		classpath "io.spring.gradle:dependency-management-plugin:${pluginDependencyManagement}"
+		classpath "com.bmuschko:gradle-docker-plugin:${pluginGradleDocker}"
+		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${pluginGradleGitProperties}"
+	}
 }
 
-group = 'com.tricycle'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+apply plugin: "java"
+apply plugin: "application"
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "com.gorylenko.gradle-git-properties"
+
+group = "com.tricycle"
+description = project.name
+version = "${version}"
+sourceCompatibility = compatibilityVersion
+targetCompatibility = compatibilityVersion
+[compileJava, compileTestJava]*.options*.encoding = "${encoding}"
+applicationDefaultJvmArgs = [
+		"-Dfile.encoding=${encoding}",
+		"-Djava.net.preferIPv4Stack=true",
+		"-XX:MaxMetaspaceSize=128m",
+		"-Xms512m",
+		"-Xmx512m",
+		"-XX:+UseG1GC"
+]
+mainClassName = "com.tricycle.gate.GateApplication"
+
+if (profile == "dev" || profile == "stage" || profile == "prod") {
+	//profile 에 따른 jvm 옵션 설정
+	applicationDefaultJvmArgs.addAll([
+			"-Dspring.jpa.properties.hibernate.hbm2ddl.auto=none",
+			"-verbose:gc",
+			"-XX:+PrintGCDetails",
+			"-XX:+PrintGCDetails",
+			"-XX:+PrintGCDateStamps",
+			"-Xloggc:/home/ec2-user/log/${project.name}/gc.log"
+	])
+}
+System.setProperty("spring.profiles.active", profile)
+println("profile: ${profile}")
+
+wrapper {
+	gradleVersion = "5.2.1"
+	distributionType = Wrapper.DistributionType.BIN
+}
 
 configurations {
+	compile.exclude module: "spring-boot-starter-tomcat"
+	developmentOnly
+	runtimeClasspath {
+		extendsFrom developmentOnly
+	}
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
@@ -35,8 +87,34 @@ jar {
 	}
 }
 
+gitProperties {
+	dateFormat = "yyyy-MM-dd HH:mm:ss"
+	dateFormatTimeZone = "Asia/Seoul"
+}
+
+
+
+springBoot {
+	buildInfo()
+}
+
+test {
+	useJUnitPlatform()
+	//개발 시에는 test OFF source 로 직접 호출은 가능 gradle build 시에만 무시
+	enabled = false
+}
+
 repositories {
+	jcenter()
 	mavenCentral()
+	maven { url "${mavenUrl}" }
+}
+
+dependencyManagement {
+	imports {
+		mavenBom              "org.springframework.cloud:spring-cloud-dependencies:${managementSpringCloudVersion}"
+		mavenBom              "de.codecentric:spring-boot-admin-dependencies:${managementSpringBootAdmin}"
+	}
 }
 
 dependencies {
@@ -47,7 +125,7 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	//providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
