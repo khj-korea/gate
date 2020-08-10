@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
@@ -26,18 +25,6 @@ public class GateServiceImpl implements GateService {
 
 	@Autowired
 	private PostgreGateMapper postgreGateMapper;
-	
-	@Override
-	public int getSample(int i) {
-
-		List<Map<String, Object>> tableList = mysqlGateMapper.getTables();
-
-		List<Map<String, Object>> postgreTableList = postgreGateMapper.getPostgreTables();
-
-		List<Map<String, Object>> gateMappingTables = postgreGateMapper.getGateMappingTables();
-
-		return mysqlGateMapper.getSample();
-	}
 
 	@Override
 	public List<Map<String, Object>> getGateMappingTables() {
@@ -53,6 +40,7 @@ public class GateServiceImpl implements GateService {
 		// 접속 단말 모바일/PC 여부 확인
 		String deviceCd = getDeviceCd(request);
 
+		// 도메인을 제외한 URI 획득
 		String requestUri = request.getRequestURI();
 		if (null != requestUri && 0 < requestUri.length() && requestUri.substring(0, 1).equals("/")) {
 			requestUri = requestUri.substring(1);
@@ -75,9 +63,12 @@ public class GateServiceImpl implements GateService {
 		}
 
 		// PartnerId 획득
-		String partnerId = queryMap.getOrDefault("partnerid", "").toString();
+		String partnerId = "";
+		if (null != queryMap) {
+			partnerId = queryMap.getOrDefault("partnerid", "").toString();
+		}
 		if (0 == partnerId.length()) {
-			partnerId = siteCd.equals("1") ? "halfclub" : "boribori";
+			partnerId = siteCd.equals("1") ? "halfclub" : "b_boribori";
 		}
 
 		// 게이트 매핑 테이블 템플릿 획득
@@ -102,6 +93,13 @@ public class GateServiceImpl implements GateService {
 			// 기본 매출코드 셋팅 후 홈 랜딩
 
 			// todo: response에 쿠키로 mnm 에 사이트별 기본 매출코드 심기
+			final Cookie cookie = new Cookie("mnm", partnerId);
+			cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
+			cookie.setPath("/");
+			cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
+			cookie.setSecure(false);
+			cookie.setHttpOnly(false);
+			response.addCookie(cookie);
 
 			// 기본 홈 주소 return
 			// 매핑테이블에 Home 타입 조회
@@ -155,6 +153,13 @@ public class GateServiceImpl implements GateService {
 				// 기본 매출코드 셋팅 후 홈 랜딩
 
 				// todo: response에 쿠키로 mnm 에 사이트별 매출코드 심기
+				final Cookie cookie = new Cookie("mnm", partnerId);
+				cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
+				cookie.setPath("/");
+				cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
+				cookie.setSecure(false);
+				cookie.setHttpOnly(false);
+				response.addCookie(cookie);
 
 				// 기본 홈 주소 return
 				// 매핑테이블에 Home 타입 조회
@@ -163,7 +168,7 @@ public class GateServiceImpl implements GateService {
 						// 동일 사이트
 						if (deviceCd.equals(partner.getOrDefault("device_cd", "").toString())) {
 							// 동일 디바이스
-							if (requestType.toLowerCase().equals("home")) {
+							if (partner.getOrDefault("type", "").toString().toLowerCase().equals("home")) {
 								// 메인화면 타입
 								mappingTemplate = partner;
 								break;
@@ -191,225 +196,23 @@ public class GateServiceImpl implements GateService {
 						redirectUrl = redirectUrl.replace(String.format("{param%d}", index), value);
 					}
 				}
+
+				// todo: response에 쿠키로 mnm 에 매출코드 심기
+				//response.setHeader("mnm_temp", partnerId);
+				final Cookie cookie = new Cookie("mnm", partnerId);
+				cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
+				cookie.setPath("/");
+				cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
+				cookie.setSecure(false);
+				cookie.setHttpOnly(false);
+				response.addCookie(cookie);
 			}
 
 			return redirectUrl;
 		}
-
-		// 쿠키 입력(임시)
-		/*Cookie partnerIdCookie = new Cookie("mnm_temp", partnerId);
-		partnerIdCookie.setDomain("www.halfclub.com");
-		partnerIdCookie.setPath("/");
-		partnerIdCookie.setMaxAge(365 * 24 * 60 * 60);
-		response.addCookie(partnerIdCookie);
-
-		// 임시 리턴
-		return "http://www.halfclub.com";*/
-
-		/*
-		for (Map<String, Object> templateMap : gateMappingTables) {
-			// 편의를 위해 url 객체 조립
-			if (0 < templateMap.getOrDefault("url_template_asis", "").toString().length()) {
-				try {
-					templateMap.put("url_template_asis_obj", new URL(templateMap.get("url_template_asis").toString()));
-				} catch (MalformedURLException e) {
-					// 에러..
-				}
-			}
-
-			if (0 < templateMap.getOrDefault("url_template_tobe", "").toString().length()) {
-				try {
-					templateMap.put("url_template_tobe_obj", new URL(templateMap.get("url_template_tobe").toString()));
-				} catch (MalformedURLException e) {
-					// 에러..
-				}
-			}
-		}
-
-		Map<String, Object> template = null;
-		for (Map<String, Object> templateMap : gateMappingTables) {
-			// as-is to-be 매핑 테이블을 돌면서
-
-			if (1 > request.getRequestURI().replace("/", "").length()) {
-				// 쿼리스트링, 세부경로가 없으면 메인페이지
-
-				if (templateMap.getOrDefault("type", "").toString().equals("Home")) {
-					// 매핑 테이블에서 메인페이지 템플릿을 탐색
-
-					if (siteCd.equals(templateMap.getOrDefault("site_cd", "").toString())) {
-						// 동일 사이트 메인페이지 템플릿을 탐색
-						if (deviceCd.equals(templateMap.getOrDefault("device_cd", "").toString())) {
-							// 동일 단말 타입의 메인페이지 템플릿을 탐색
-							template = templateMap;
-							break;
-						}
-					}
-				}
-				continue;
-			}
-
-			if (null != templateMap.get("url_template_tobe_obj")) {
-				// to-be 주소가 존재하고
-
-				URL tobeUrl = (URL)templateMap.get("url_template_tobe_obj");
-				if (requestType.equals(templateMap.get("type").toString()) &&
-					siteCd.equals(templateMap.get("site_cd").toString()) &&
-					deviceCd.equals(templateMap.get("device_cd").toString())) {
-
-					// to-be 접속 타입이 접속 타입과 동일하면
-
-					// 매핑 템플릿 획득
-					template = templateMap;
-					break;
-				}
-			}
-		}
-
-		if (null == template) {
-			// 매핑 템플릿을 획득하지 못했으면
-
-			for (Map<String, Object> templateMap : gateMappingTables) {
-				if (templateMap.get("site_cd").toString().equals(siteCd) && templateMap.get("device_cd").equals(deviceCd)) {
-					if (templateMap.get("type").toString().equals("Home")) {
-						// 현재 접속 사이트, 현재 접속 디바이스별 메인페이지 템플릿 획득
-						template = templateMap;
-						break;
-					}
-				}
-			}
-		} else {
-			// 매핑 템플릿을 획득하였으면
-
-			// 현재 접속 디바이스와 동일한지 확인
-			if (!deviceCd.equals(template.get("device_cd").toString())) {
-				// 디바이스가 다르면..
-
-				// 동일 사이트, 동일 타입의 맞는 디바이스로 템플릿 변경
-				String type = template.get("type").toString();
-				for (Map<String, Object> templateMap : gateMappingTables) {
-					if (template.get("site_cd").toString().equals(siteCd)) {
-						if (!template.get("device_cd").toString().equals(deviceCd)) {
-							if (template.get("type").toString().equals(type)) {
-								template = templateMap;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (null != request.getQueryString() && 0 < request.getQueryString().length()) {
-			String returnUrl = template.get("url_template_asis").toString();
-
-			// 쿼리 스트링이 존재하면..
-
-			if (requestType.equals("detail_pcode")) {
-				// 상품 상세 모바일이면.. (PC는 쿼리스트링 미존재)
-
-				// 상품번호 획득
-				String prdNo = queryMap.getOrDefault("productNo", "").toString();
-
-				// 상품번호로 P코드 획득
-				Map<String, Object> prdMap = postgreGateMapper.getPrdInfoByPrdno(prdNo);
-
-				// returnUrl에서 Param1을 Pcode로 변경
-				if (null != prdMap ) {
-					returnUrl = returnUrl.replace("{param1}", prdMap.getOrDefault("pcode", "").toString());
-				}
-			} else if (requestType.equals("Best_category")) {
-				// 카테고리 베스트 PC이면..
-				returnUrl = returnUrl;
-
-				// to-be 카테고리 번호 획득
-				String tobeCategoryNo = queryMap.getOrDefault("categoryNo", "").toString();
-
-				// as-is 카테고리 번호 지정
-				String asisCategoryNo = "";
-
-				switch (tobeCategoryNo) {
-					case "101": asisCategoryNo = "f"; break;
-					case "102": asisCategoryNo = "m"; break;
-					case "103": asisCategoryNo = "u"; break;
-					case "104": asisCategoryNo = "e"; break;
-					case "105": asisCategoryNo = "a"; break;
-					case "106": asisCategoryNo = "ad"; break;
-					case "107": asisCategoryNo = "tf"; break;
-					case "108": asisCategoryNo = "ad"; break;
-					case "109": asisCategoryNo = "l"; break;
-					case "110": asisCategoryNo = "ud"; break;
-					case "111": asisCategoryNo = "hp"; break;
-					case "112": asisCategoryNo = "uc"; break;
-					case "113": asisCategoryNo = "k"; break;
-					case "114": asisCategoryNo = "c"; break;
-					case "115": asisCategoryNo = "fo"; break;
-					case "116": asisCategoryNo = "uf"; break;
-					case "117": asisCategoryNo = "uc"; break;
-				}
-
-				returnUrl = returnUrl.replace("{param1}", asisCategoryNo);
-
-				return returnUrl;
-			} else if (requestType.equals("Best")) {
-				// 보리 모바일 베스트
-				return returnUrl;
-			} else if (requestType.equals("Theme")) {
-				// PC 기획전
-
-				// to-be 기획전 번호 획득
-				String planNo = queryMap.getOrDefault("planNo", "").toString();
-
-				returnUrl = returnUrl.replace("{param1}", planNo);
-
-				return returnUrl;
-			}
-		} else {
-			String returnUrl = template.get("url_template_asis").toString();
-
-			if (requestType.equals("detail_pcode")) {
-				// 상품 상세 PC이면.. (모바일은 쿼리스트링 존재)
-
-				// 상품번호 획득
-				String prdNo = request.getRequestURI().replace("/product/", "");
-
-				// 상품번호로 P코드 획득
-				Map<String, Object> prdMap = postgreGateMapper.getPrdInfoByPrdno(prdNo);
-
-				// returnUrl에서 Param1을 Pcode로 변경
-				if (null != prdMap ) {
-					returnUrl = returnUrl.replace("{param1}", prdMap.getOrDefault("pcode", "").toString());
-				}
-			} else if (requestType.equals("Theme")) {
-				// 모바일 기획전이면..
-
-				// 기획전 번호 획득
-				String planNo = request.getRequestURI().replace("/plan/", "");
-
-				returnUrl = returnUrl.replace("{param1}", planNo);
-			}
-
-			return returnUrl;
-		}
-
-		// 임시
-		String returnUrl = "";
-		if (siteCd.equals("1")) {
-			if (deviceCd.equals("001")) {
-				returnUrl = "//www.halfclub.com";
-			} else {
-				returnUrl = "//m.halfclub.com";
-			}
-		} else {
-			if (deviceCd.equals("001")) {
-				returnUrl = "//www.boribori.co.kr";
-			} else {
-				returnUrl = "//m.boribori.co.kr";
-			}
-		}
-
-		return returnUrl;*/
 	}
 
+	@Override
 	public String getDeviceCd(HttpServletRequest request) {
 		String userAgent = request.getHeader("User-Agent").toUpperCase();
 
@@ -420,18 +223,20 @@ public class GateServiceImpl implements GateService {
 		}
 	}
 
+	@Override
 	public String getSiteCd(HttpServletRequest request) {
 
-		if (request.getServerName().indexOf("halfclub.com") > -1) {
-			return "1";
-		} else if (request.getServerName().indexOf("boribori.co.kr") > -1) {
-			return "2";
+		if (request.getServerName().indexOf(SiteDefine.Halfclub.getSiteCookieDomain()) > -1) {
+			return SiteDefine.Halfclub.getSiteCd();
+		} else if (request.getServerName().indexOf(SiteDefine.Boribori.getSiteCookieDomain()) > -1) {
+			return SiteDefine.Boribori.getSiteCd();
 		} else {
 			// default for test
-			return "1";
+			return SiteDefine.Halfclub.getSiteCd();
 		}
 	}
 
+	@Override
 	public String getRequestType(HttpServletRequest request, String siteCd) {
 
 		String urlWithoutDomain = request.getRequestURI();
@@ -467,16 +272,22 @@ public class GateServiceImpl implements GateService {
 		return requestType;
 	}
 
-	public static Map<String, Object> splitQuery(URL url) throws UnsupportedEncodingException {
+	@Override
+	public Map<String, Object> splitQuery(URL url) throws UnsupportedEncodingException {
 		return splitQuery(url.getQuery());
 	}
-	public static Map<String, Object> splitQuery(String query) throws UnsupportedEncodingException {
+	@Override
+	public Map<String, Object> splitQuery(String query) throws UnsupportedEncodingException {
 		Map<String, Object> query_pairs = new LinkedHashMap<>();
 		if (null != query) {
 			String[] pairs = query.split("&");
-			for (String pair : pairs) {
-				int idx = pair.indexOf("=");
-				query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+			if (null != pairs) {
+				for (String pair : pairs) {
+					int idx = pair.indexOf("=");
+					if (-1 < idx) {
+						query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+					}
+				}
 			}
 		}
 		return query_pairs;
