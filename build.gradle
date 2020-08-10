@@ -15,6 +15,26 @@ configurations {
 	}
 }
 
+bootDistZip {
+	baseName = project.name
+//  classifier = ""
+//  appendix = ""
+}
+
+bootJar {
+	enabled = true
+}
+
+jar {
+	enabled = true
+	manifest {
+		attributes(
+				"Implementation-Title": "${project.name}",
+				"Implementation-Version": "${project.version}"
+		)
+	}
+}
+
 repositories {
 	mavenCentral()
 }
