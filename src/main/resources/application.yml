@@ -1,0 +1,47 @@
+server:
+  port: 80
+
+spring:
+  profiles.active: prod
+
+---
+
+spring:
+  profiles: local
+
+  datasource:
+    url: jdbc:log4jdbc:mysql://maria-db.halfclub.com:3306/ecomms?characterEncoding=UTF-8&serverTimezone=UTC
+    jdbcUrl: jdbc:mysql://maria-db.halfclub.com:3306/ecomms?characterEncoding=UTF-8&serverTimezone=UTC
+    username: admin
+    password: tricycle12
+    driverClassName: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+
+  datasource2:
+    url: jdbc:log4jdbc:postgresql://db.halfclub.com:5432/ecommerce?currentSchema=ecomms
+    jdbcUrl: jdbc:postgresql://db.halfclub.com:5432/ecommerce?currentSchema=ecomms
+    username: service_bo
+    password: tricycle1@bo
+    driverClassName: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+
+---
+
+spring:
+  profiles: prod
+
+  datasource:
+    url: jdbc:log4jdbc:mysql://maria-db.halfclub.com:3306/ecomms?characterEncoding=UTF-8&serverTimezone=UTC
+    jdbcUrl: jdbc:mysql://maria-db.halfclub.com:3306/ecomms?characterEncoding=UTF-8&serverTimezone=UTC
+    username: admin
+    password: tricycle12
+    driverClassName: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+
+  datasource2:
+    url: jdbc:log4jdbc:postgresql://db.halfclub.com:5432/ecommerce?currentSchema=ecomms
+    jdbcUrl: jdbc:postgresql://db.halfclub.com:5432/ecommerce?currentSchema=ecomms
+    username: service_bo
+    password: tricycle1@bo
+    driverClassName: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
