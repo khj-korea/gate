@@ -23,9 +23,7 @@ public class GateController {
 	private GateService gateService;
 
 	@RequestMapping(method = RequestMethod.GET)
-	public String getGatePage(Model model, final HttpSession session, HttpServletResponse response, HttpServletRequest request) {
-
-		//gateService.getSample(1);
+	public void getGatePage(Model model, final HttpSession session, HttpServletResponse response, HttpServletRequest request) throws IOException {
 
 		String redirectUrl = "";
 
@@ -38,11 +36,18 @@ public class GateController {
 			redirectUrl = redirectUrl.replace("https:", "");
 
 			// redirect url정상시 해당 url 이동
-			return "redirect:" + redirectUrl;
-			//response.sendRedirect(redirectUrl);
+
+			response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+			response.setHeader("Location", redirectUrl);
 		} else {
-			// 에러.. 기존 매핑 url로 이동
-			return "redirect://www.halfclub.com";
+			// 에러.. 기존 매핑 url(디폴트 URL)로 이동
+			String siteCd = gateService.getSiteCd(request);
+			String deviceCd = gateService.getDeviceCd(request);
+			if (siteCd.equals(GateService.SiteDefine.Halfclub.getSiteCd())) {
+				response.setHeader("Location", deviceCd.equals("001") ? GateService.SiteDefine.Halfclub.getSiteCookieDomain() : GateService.SiteDefine.Halfclub.getSiteDefaultUrlMO());
+			} else {
+				response.setHeader("Location", deviceCd.equals("001") ? GateService.SiteDefine.Boribori.getSiteCookieDomain() : GateService.SiteDefine.Boribori.getSiteDefaultUrlMO());
+			}
 		}
 	}
 }
