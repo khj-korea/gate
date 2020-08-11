@@ -112,14 +112,8 @@ public class GateServiceImpl implements GateService {
 
 			// 기본 매출코드 셋팅 후 홈 랜딩
 
-			// todo: response에 쿠키로 mnm 에 사이트별 기본 매출코드 심기
-			final Cookie cookie = new Cookie("mnm", partnerId);
-			cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
-			cookie.setPath("/");
-			cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
-			cookie.setSecure(false);
-			cookie.setHttpOnly(false);
-			response.addCookie(cookie);
+			// response에 쿠키로 mnm 에 사이트별 기본 매출코드 심기
+			addPartnerCookie(response, siteCd, partnerId);
 
 			// 기본 홈 주소 return
 			// 매핑테이블에 Home 타입 조회
@@ -172,14 +166,8 @@ public class GateServiceImpl implements GateService {
 
 				// 기본 매출코드 셋팅 후 홈 랜딩
 
-				// todo: response에 쿠키로 mnm 에 사이트별 매출코드 심기
-				final Cookie cookie = new Cookie("mnm", partnerId);
-				cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
-				cookie.setPath("/");
-				cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
-				cookie.setSecure(false);
-				cookie.setHttpOnly(false);
-				response.addCookie(cookie);
+				// response에 쿠키로 mnm 에 사이트별 매출코드 심기
+				addPartnerCookie(response, siteCd, partnerId);
 
 				// 기본 홈 주소 return
 				// 매핑테이블에 Home 타입 조회
@@ -217,15 +205,8 @@ public class GateServiceImpl implements GateService {
 					}
 				}
 
-				// todo: response에 쿠키로 mnm 에 매출코드 심기
-				//response.setHeader("mnm_temp", partnerId);
-				final Cookie cookie = new Cookie("mnm", partnerId);
-				cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
-				cookie.setPath("/");
-				cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
-				cookie.setSecure(false);
-				cookie.setHttpOnly(false);
-				response.addCookie(cookie);
+				// response에 쿠키로 mnm 에 매출코드 심기
+				addPartnerCookie(response, siteCd, partnerId);
 			}
 
 			return redirectUrl;
@@ -311,5 +292,17 @@ public class GateServiceImpl implements GateService {
 			}
 		}
 		return query_pairs;
+	}
+
+	@Override
+	public void addPartnerCookie(HttpServletResponse response, String siteCd, String partnerId) {
+
+		final Cookie cookie = new Cookie("mnm", partnerId);
+		cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
+		cookie.setPath("/");
+		cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
+		cookie.setSecure(false);
+		cookie.setHttpOnly(false);
+		response.addCookie(cookie);
 	}
 }

@@ -46,4 +46,5 @@ public interface GateService {
 	public String getRequestType(HttpServletRequest request, String siteCd);
 	public Map<String, Object> splitQuery(URL url) throws UnsupportedEncodingException;
 	public Map<String, Object> splitQuery(String query) throws UnsupportedEncodingException;
+	public void addPartnerCookie(HttpServletResponse response, String siteCd, String partnerId);
 }
