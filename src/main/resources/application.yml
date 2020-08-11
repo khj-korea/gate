@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 8080
 
 spring:
   profiles.active: prod
@@ -39,9 +39,47 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
 
   datasource2:
-    url: jdbc:log4jdbc:postgresql://db.halfclub.com:5432/ecommerce?currentSchema=ecomms
-    jdbcUrl: jdbc:postgresql://db.halfclub.com:5432/ecommerce?currentSchema=ecomms
-    username: service_bo
-    password: tricycle1@bo
-    driverClassName: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    jdbcUrl: jdbc:log4jdbc:postgresql://db.halfclub.com:5432/ecommerce?currentSchema=ecomms
+    username: ecommerce
+    password: tricycle0root
+    hikari:
+      driver-class-name: ${spring.datasource2.driver-class-name}
+      jdbc-url: ${spring.datasource2.jdbcUrl}
+      username: ${spring.datasource2.username}
+      password: ${spring.datasource2.password}
+      connection-timeout: 10000
+      minimum-idle: 2
+      maximum-pool-size: 3
+      max-lifetime: 3597000
+      pool-name: ${spring.application.name}-${spring.profiles.active}-pool
+      data-source-properties:
+        cache-prep-stmts: "true"
+        prep-stmt-cache-size: "250"
+        prep-stmt-cache-sql-limit: "2048"
+        use-server-prep-stmts: "true"
+        use-local-session-state: "true"
+        rewrite-batched-statements: "true"
+        cache-result-set-metadata: "true"
+        cache-server-configuration: "true"
+        elide-set-auto-commits: "true"
+        maintain-time-stats: "false"
+
+logging:
+  path: ../log
+  pattern:
+    console: ${CONSOLE_LOG_PATTERN:%clr(%d{${LOG_DATEFORMAT_PATTERN:yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m (%file:%line\) %n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}}
+    file:  ${CONSOLE_LOG_PATTERN:%clr(%d{${LOG_DATEFORMAT_PATTERN:yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m (%file:%line\) %n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}}
+  level:
+    ROOT: INFO
+    tricycle: DEBUG
+    org.springframework.boot: INFO
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    jdbc.resultset: ERROR  
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+    

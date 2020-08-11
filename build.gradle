@@ -130,6 +130,7 @@ dependencies {
 	
 	implementation 'com.zaxxer:HikariCP'
 	implementation 'org.mariadb.jdbc:mariadb-java-client'
+	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
 	
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
