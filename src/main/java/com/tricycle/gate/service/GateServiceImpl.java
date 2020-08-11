@@ -72,7 +72,7 @@ public class GateServiceImpl implements GateService {
 		}
 
 		// 게이트 매핑 테이블 템플릿 획득
-		List<Map<String, Object>> gateMappingTables = postgreGateMapper.getGateMappingTables();
+		List<Map<String, Object>> gateMappingTables = mysqlGateMapper.getGateMappingTables();
 
 		// 1. 방문 카운트 insert
 		Map<String, Object> partnerConnCountMap = new HashMap<>();
