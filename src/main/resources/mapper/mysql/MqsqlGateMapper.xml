@@ -8,10 +8,16 @@
             partner_id
             ,site_cd
             ,device_cd
+            ,client_ip
+            ,user_agent
+            ,referral_url
         ) VALUES (
             #{partnerId}
             ,#{siteCd}
             ,#{deviceCd}
+            ,#{clientIp}
+            ,#{userAgent}
+            ,#{refererUrl}
         )
     </insert>
 

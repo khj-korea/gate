@@ -71,6 +71,23 @@ public class GateServiceImpl implements GateService {
 			partnerId = siteCd.equals("1") ? "halfclub" : "b_boribori";
 		}
 
+		// 클라이언트 IP 획득
+		String clientIp = "";
+		if (null != request.getHeader("X-FORWARDED-FOR")) {
+			clientIp = request.getHeader("X-FORWARDED-FOR");
+		} else {
+			clientIp = request.getRemoteAddr();
+		}
+
+		// UserAgent 획득
+		String userAgent = request.getHeader("User-Agent").toUpperCase();
+
+		// 이전URL 획득
+		String refererUrl = "";
+		if (null != request.getHeader("referer")) {
+			refererUrl = request.getHeader("referer");
+		}
+
 		// 게이트 매핑 테이블 템플릿 획득
 		List<Map<String, Object>> gateMappingTables = mysqlGateMapper.getGateMappingTables();
 
@@ -79,6 +96,9 @@ public class GateServiceImpl implements GateService {
 		partnerConnCountMap.put("partnerId", partnerId);
 		partnerConnCountMap.put("siteCd", siteCd);
 		partnerConnCountMap.put("deviceCd", deviceCd);
+		partnerConnCountMap.put("clientIp", clientIp);
+		partnerConnCountMap.put("userAgent", userAgent);
+		partnerConnCountMap.put("refererUrl", refererUrl);
 		mysqlGateMapper.insertPartnerConnCount(partnerConnCountMap);
 
 		// 2. 매출코드 유효성 체크
