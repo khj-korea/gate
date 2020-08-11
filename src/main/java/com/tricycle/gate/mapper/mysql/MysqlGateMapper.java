@@ -11,4 +11,6 @@ public interface MysqlGateMapper {
 	List<Map<String, Object>> getGateMappingTables();
 
 	int insertPartnerConnCount(Map<String, Object> partnerConnCountMap);
+
+	Map<String, Object> getPartnerIdDetail(String partnerId);
 }

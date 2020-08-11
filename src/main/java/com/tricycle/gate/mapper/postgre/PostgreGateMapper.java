@@ -9,6 +9,4 @@ import java.util.Map;
 public interface PostgreGateMapper {
 
     Map<String, Object> getPrdInfoByPrdno(String prdNo);
-
-    Map<String, Object> getPartnerIdDetail(String partnerId);
 }

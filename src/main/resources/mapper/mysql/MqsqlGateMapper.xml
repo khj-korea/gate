@@ -26,4 +26,9 @@
         FROM ecomms.tmk_gate_mapping
     </select>
 
+    <select id="getPartnerIdDetail" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT *
+        FROM ecomms.t_partnercommi partner
+        WHERE partner.partnerid = #{partnerId}
+    </select>
 </mapper>

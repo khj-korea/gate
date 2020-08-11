@@ -102,7 +102,7 @@ public class GateServiceImpl implements GateService {
 		mysqlGateMapper.insertPartnerConnCount(partnerConnCountMap);
 
 		// 2. 매출코드 유효성 체크
-		Map<String, Object> partnerIdDetailMap = postgreGateMapper.getPartnerIdDetail(partnerId);
+		Map<String, Object> partnerIdDetailMap = mysqlGateMapper.getPartnerIdDetail(partnerId);
 		if (null == partnerIdDetailMap) {
 			// 매출코드가 DB에 없음..
 

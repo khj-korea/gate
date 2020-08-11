@@ -10,10 +10,4 @@
         FROM ecomms.tpd_prd prd
         WHERE prd.prd_no = #{prdNo}::int
     </select>
-
-    <select id="getPartnerIdDetail" parameterType="java.lang.String" resultType="java.util.Map">
-        SELECT *
-        FROM ecomms.t_partnercommi partner
-        WHERE partner.partnerid = #{partnerId}
-    </select>
 </mapper>
