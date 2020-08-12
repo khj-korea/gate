@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.tricycle.gate.service.GateService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +22,12 @@ import java.io.IOException;
 public class GateController {
 	@Autowired
 	private GateService gateService;
+
+	@RequestMapping(value = "/index.html", method = RequestMethod.GET)
+	@ResponseBody
+	public String getIndexPage(Model model, final HttpSession session, HttpServletResponse response, HttpServletRequest request) {
+		return "<html><body>Tricycle Gate-responsebody</body></html>";
+	}
 
 	@RequestMapping(method = RequestMethod.GET)
 	public void getGatePage(Model model, final HttpSession session, HttpServletResponse response, HttpServletRequest request) throws IOException {
