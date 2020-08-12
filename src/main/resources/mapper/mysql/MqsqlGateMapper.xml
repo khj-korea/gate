@@ -10,7 +10,10 @@
             ,device_cd
             ,client_ip
             ,user_agent
-            ,referral_url
+            ,referrer_url
+            ,pcid
+            ,uid
+            ,url_parameter
         ) VALUES (
             #{partnerId}
             ,#{siteCd}
@@ -18,6 +21,9 @@
             ,#{clientIp}
             ,#{userAgent}
             ,#{refererUrl}
+            ,#{pcid}
+            ,#{uid}
+            ,#{urlParameter}
         )
     </insert>
 
