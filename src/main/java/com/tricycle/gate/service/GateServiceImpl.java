@@ -88,6 +88,25 @@ public class GateServiceImpl implements GateService {
 			refererUrl = request.getHeader("referer");
 		}
 
+		// pcid 쿠키 획득
+		// uid 쿠키 획득
+		String pcid = "";
+		String uid = "";
+		if (null != request.getCookies()) {
+			Cookie[] cookies = request.getCookies();
+			for (int i=0; i<cookies.length; i++) {
+				Cookie cookie = cookies[i];
+				if (cookie.getName().equals("pcid")) {
+					pcid = cookie.getValue();
+				} else if (cookie.getName().equals("uid")) {
+					uid = cookie.getValue();
+				}
+			}
+		}
+
+		// url_parameter (requestUri) 값 획득
+		String urlParameter = requestUri;
+
 		// 게이트 매핑 테이블 템플릿 획득
 		List<Map<String, Object>> gateMappingTables = mysqlGateMapper.getGateMappingTables();
 
@@ -99,6 +118,11 @@ public class GateServiceImpl implements GateService {
 		partnerConnCountMap.put("clientIp", clientIp);
 		partnerConnCountMap.put("userAgent", userAgent);
 		partnerConnCountMap.put("refererUrl", refererUrl);
+		partnerConnCountMap.put("pcid", pcid);
+		if (0 < uid.length()) {
+			partnerConnCountMap.put("uid", uid);
+		}
+		partnerConnCountMap.put("urlParameter", urlParameter);
 		mysqlGateMapper.insertPartnerConnCount(partnerConnCountMap);
 
 		// 2. 매출코드 유효성 체크
