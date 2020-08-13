@@ -2,7 +2,8 @@ server:
   port: 8080
 
 spring:
-  profiles.active: prod
+  profiles:
+    active: prod
 
 ---
 
@@ -66,8 +67,19 @@ spring:
         elide-set-auto-commits: "true"
         maintain-time-stats: "false"
 
+  output:
+    ansi:
+      enabled: always
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    fallback-to-system-locale: true
+  flyway:
+    enabled: false
+
+
 logging:
-  path: ../log
+  path: ./log
   pattern:
     console: ${CONSOLE_LOG_PATTERN:%clr(%d{${LOG_DATEFORMAT_PATTERN:yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m (%file:%line\) %n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}}
     file:  ${CONSOLE_LOG_PATTERN:%clr(%d{${LOG_DATEFORMAT_PATTERN:yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m (%file:%line\) %n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}}
@@ -82,4 +94,17 @@ logging:
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
+
+  configuration:
+    cache-enabled: true
+    use-generated-keys: false
+    default-executor-type: SIMPLE
+    lazy-loading-enabled: false
+    aggressive-lazy-loading: true
+    use-column-label: true
+    auto-mapping-behavior: PARTIAL
+    multiple-result-sets-enabled: true
+    safe-row-bounds-enabled: true
+    map-underscore-to-camel-case: true
+
     
