@@ -193,8 +193,9 @@ public class GateServiceImpl implements GateService {
 
 				// 파라메터 1~5 존재 확인 후 to-be 테이블에서 replace하기
 				for (int index=1; index<6; index++) {
-					if (null != mappingTemplate.get(String.format("param%d", index))) {
-						String key = mappingTemplate.get(String.format("param%d", index)).toString();
+					if (0 < mappingTemplate.getOrDefault(String.format("param%d", index), "").toString().length()) {
+						//String key = mappingTemplate.get(String.format("param%d", index)).toString();
+						String key = String.format("param%d", index);
 
 						String value = "";
 						if (null != queryMap) {
