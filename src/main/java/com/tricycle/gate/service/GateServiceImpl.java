@@ -123,7 +123,7 @@ public class GateServiceImpl implements GateService {
 					// 동일 사이트
 					if (deviceCd.equals(partner.getOrDefault("device_cd", "").toString())) {
 						// 동일 디바이스
-						if (requestType.toLowerCase().equals("home")) {
+						if (partner.getOrDefault("type", "").toString().toLowerCase().equals("home")) {
 							// 메인화면 타입
 							mappingTemplate = partner;
 							break;
