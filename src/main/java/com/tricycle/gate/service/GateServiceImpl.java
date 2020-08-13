@@ -96,9 +96,9 @@ public class GateServiceImpl implements GateService {
 			Cookie[] cookies = request.getCookies();
 			for (int i=0; i<cookies.length; i++) {
 				Cookie cookie = cookies[i];
-				if (cookie.getName().equals("pcid")) {
+				if (cookie.getName().equals("PCID")) {
 					pcid = cookie.getValue();
-				} else if (cookie.getName().equals("uid")) {
+				} else if (cookie.getName().equals("UID")) {
 					uid = cookie.getValue();
 				}
 			}
@@ -119,9 +119,7 @@ public class GateServiceImpl implements GateService {
 		partnerConnCountMap.put("userAgent", userAgent);
 		partnerConnCountMap.put("refererUrl", refererUrl);
 		partnerConnCountMap.put("pcid", pcid);
-		if (0 < uid.length()) {
-			partnerConnCountMap.put("uid", uid);
-		}
+		partnerConnCountMap.put("uid", uid);
 		partnerConnCountMap.put("urlParameter", urlParameter);
 		mysqlGateMapper.insertPartnerConnCount(partnerConnCountMap);
 
