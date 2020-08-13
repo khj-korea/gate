@@ -82,7 +82,7 @@ spring:
 
 
 logging:
-  path: /home/ec2-user/log/${spring.application.name}
+  path: /home/ec2-user/log/gate
   level:
     ROOT: INFO
     tricycle: DEBUG
@@ -94,6 +94,7 @@ logging:
     org.hibernate.type.descriptor.sql: TRACE
 #    org.springframework.cloud.netflix.eureka: TRACE
 #    com.netflix.eureka: TRACE
+
 
 
 
