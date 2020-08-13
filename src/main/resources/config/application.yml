@@ -31,6 +31,9 @@ spring:
 spring:
   profiles: prod
 
+  pid:
+    file: application.pid
+    
   datasource:
     url: jdbc:log4jdbc:mysql://maria-db.halfclub.com:3306/ecomms?characterEncoding=UTF-8&serverTimezone=UTC
     jdbcUrl: jdbc:mysql://maria-db.halfclub.com:3306/ecomms?characterEncoding=UTF-8&serverTimezone=UTC
