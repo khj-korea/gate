@@ -8,7 +8,7 @@ import java.util.Map;
 @Mapper
 public interface MysqlGateMapper {
 
-	List<Map<String, Object>> getGateMappingTables();
+	List<Map<String, Object>> getGateMappingTables(Map<String, Object> mappingTableSearchMap);
 
 	int insertPartnerConnCount(Map<String, Object> partnerConnCountMap);
 

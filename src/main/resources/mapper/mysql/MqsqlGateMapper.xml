@@ -27,9 +27,19 @@
         )
     </insert>
 
-    <select id="getGateMappingTables" resultType="java.util.Map">
+    <select id="getGateMappingTables" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT *
-        FROM ecomms.tmk_gate_mapping
+        FROM ecomms.tmk_gate_mapping mapping
+        WHERE 1=1
+        <if test="siteCd != null and siteCd != ''">
+            AND mapping.site_cd = #{siteCd}
+        </if>
+        <if test="deviceCd != null and deviceCd != ''">
+            AND mapping.device_cd = #{deviceCd}
+        </if>
+        <if test="type != null and type != ''">
+            AND (LCASE(mapping.type) = LCASE(#{type}) OR LCASE(mapping.type) = 'home')
+        </if>
     </select>
 
     <select id="getPartnerIdDetail" parameterType="java.lang.String" resultType="java.util.Map">

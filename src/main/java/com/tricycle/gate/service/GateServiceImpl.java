@@ -108,7 +108,11 @@ public class GateServiceImpl implements GateService {
 		String urlParameter = requestUri;
 
 		// 게이트 매핑 테이블 템플릿 획득
-		List<Map<String, Object>> gateMappingTables = mysqlGateMapper.getGateMappingTables();
+		Map<String, Object> mappingTableSearchMap = new HashMap<>();
+		mappingTableSearchMap.put("siteCd", siteCd);
+		mappingTableSearchMap.put("deviceCd", deviceCd);
+		mappingTableSearchMap.put("type", requestType);
+		List<Map<String, Object>> gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
 
 		// 1. 방문 카운트 insert
 		Map<String, Object> partnerConnCountMap = new HashMap<>();
