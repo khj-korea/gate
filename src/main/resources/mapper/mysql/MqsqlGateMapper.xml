@@ -4,6 +4,11 @@
 <mapper namespace="com.tricycle.gate.mapper.mysql.MysqlGateMapper">
     
     <insert id="insertPartnerConnCount" parameterType="java.util.Map">
+        <selectKey resultType="long" keyProperty="seq" order="BEFORE">
+            SELECT IFNULL(MAX(seq), 0) + 1 AS seq
+            FROM ecomms.tsy_partner_conn
+        </selectKey>
+
         INSERT INTO ecomms.tsy_partner_conn (
             partner_id
             ,site_cd
