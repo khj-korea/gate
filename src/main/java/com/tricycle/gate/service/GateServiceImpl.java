@@ -266,8 +266,10 @@ public class GateServiceImpl implements GateService {
 				addPartnerCookie(response, siteCd, partnerId);
 			}
 
-			return redirectUrl;
+			//return redirectUrl;
 		}
+
+		return redirectUrl;
 	}
 
 	@Override
