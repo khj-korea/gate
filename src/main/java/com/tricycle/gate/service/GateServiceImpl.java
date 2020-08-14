@@ -138,6 +138,10 @@ public class GateServiceImpl implements GateService {
 		partnerConnCountMap.put("urlParameter", urlParameter);
 		mysqlGateMapper.insertPartnerConnCount(partnerConnCountMap);
 
+		// 방문 카운트 insert 한 레코드의 SEQ를 읽어온다
+		String partnerConnSeq = "";
+		partnerConnSeq = partnerConnCountMap.getOrDefault("seq", "").toString();
+
 		// 2. 매출코드 유효성 체크
 		Map<String, Object> partnerIdDetailMap = mysqlGateMapper.getPartnerIdDetail(partnerId);
 		if (null == partnerIdDetailMap) {
@@ -268,6 +272,11 @@ public class GateServiceImpl implements GateService {
 
 			//return redirectUrl;
 		}
+
+		//todo: redirect URL 뒤쪽에 방문 카운트 insert 한 레코드의 SEQ를 붙인다.
+		/* 예제:
+		redirectUrl += "&gSeq=" + partnerConnSeq;
+		 */
 
 		return redirectUrl;
 	}
