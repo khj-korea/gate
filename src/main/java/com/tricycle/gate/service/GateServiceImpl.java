@@ -34,6 +34,8 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public String getGateRedirectUrl(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 
+		String redirectUrl = "";
+
 		// 접속 URL 도메인 확인 후 사이트 확인
 		String siteCd = getSiteCd(request);
 
@@ -81,6 +83,9 @@ public class GateServiceImpl implements GateService {
 
 		// UserAgent 획득
 		String userAgent = request.getHeader("User-Agent").toUpperCase();
+		if (null == userAgent || 1 > userAgent.length()) {
+			return "";
+		}
 
 		// 이전URL 획득
 		String refererUrl = "";
@@ -106,6 +111,12 @@ public class GateServiceImpl implements GateService {
 
 		// url_parameter (requestUri) 값 획득
 		String urlParameter = requestUri;
+
+		// 접속 요청한 모바일PC 여부 확인
+		String reqDeviceCd = "";
+		if (null != queryMap) {
+			reqDeviceCd = queryMap.getOrDefault("device_cd", "").toString();
+		}
 
 		// 게이트 매핑 테이블 템플릿 획득
 		Map<String, Object> mappingTableSearchMap = new HashMap<>();
@@ -157,11 +168,29 @@ public class GateServiceImpl implements GateService {
 					}
 				}
 			}
-			return mappingTemplate.getOrDefault("url_template_asis", "").toString();
+			//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
+			redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
 		} else {
 			// 매출코드가 존재
 
-			String redirectUrl = "";
+			if (reqDeviceCd.equals("001")) {
+				// PC 게이트페이지로 접근 요청
+
+				if (deviceCd.equals("001")) {
+					// 현재 접속 장비가 PC
+					// do nothing
+				} else {
+					// 현재 접속 장비가 MC
+
+					// 매출코드를 MC매출코드로 변경
+					if (0 < partnerIdDetailMap.getOrDefault("mobileid", "").toString().length()) {
+						partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
+					}
+				}
+			} else {
+				// MC 게이트페이지로 접근 요청
+				// 분기처리 없음
+			}
 
 			// 매핑테이블에 타입 조회
 			Map<String, Object> mappingTemplate = null;
@@ -210,7 +239,8 @@ public class GateServiceImpl implements GateService {
 						}
 					}
 				}
-				return mappingTemplate.getOrDefault("url_template_asis", "").toString();
+				//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
+				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
 			} else {
 				// 템플릿 있음
 
