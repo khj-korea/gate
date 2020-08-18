@@ -52,4 +52,17 @@
         FROM ecomms.t_partnercommi partner
         WHERE partner.partnerid = #{partnerId}
     </select>
+    
+    <insert id="insertExcptLog" parameterType="java.util.Map">
+        
+        INSERT INTO ecomms.tmk_gate_excpt_log (
+            log_seq
+            ,create_dt
+            ,log_type
+        ) VALUES (
+           CAST(#{log_seq} AS UNSIGNED)
+           ,now()
+           ,#{log_type}
+        )
+    </insert>
 </mapper>

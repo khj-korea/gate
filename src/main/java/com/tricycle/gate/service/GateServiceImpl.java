@@ -142,6 +142,8 @@ public class GateServiceImpl implements GateService {
 		String partnerConnSeq = "";
 		partnerConnSeq = partnerConnCountMap.getOrDefault("seq", "").toString();
 
+		Map<String, Object> excptLogMap = new HashMap<>();
+		excptLogMap.put("log_seq", partnerConnSeq);
 		// 2. 매출코드 유효성 체크
 		Map<String, Object> partnerIdDetailMap = mysqlGateMapper.getPartnerIdDetail(partnerId);
 		if (null == partnerIdDetailMap) {
@@ -150,7 +152,8 @@ public class GateServiceImpl implements GateService {
 			// todo: 예외처리.. 무엇을?
 
 			// todo: Log Insert.. 무엇을?
-
+			excptLogMap.put("log_type","1");
+			int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 			// 기본 매출코드 셋팅 후 홈 랜딩
 
 			// response에 쿠키로 mnm 에 사이트별 기본 매출코드 심기
@@ -174,6 +177,7 @@ public class GateServiceImpl implements GateService {
 			}
 			//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
 			redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
+			redirectUrl += "?gSeq=" + partnerConnSeq;
 		} else {
 			// 매출코드가 존재
 
@@ -222,7 +226,8 @@ public class GateServiceImpl implements GateService {
 				// todo: 예외처리.. 무엇을?
 
 				// todo: Log Insert.. 무엇을?
-
+				excptLogMap.put("log_type","2");
+				int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 				// 기본 매출코드 셋팅 후 홈 랜딩
 
 				// response에 쿠키로 mnm 에 사이트별 매출코드 심기
@@ -245,6 +250,7 @@ public class GateServiceImpl implements GateService {
 				}
 				//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
 				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
+				redirectUrl += "?gSeq=" + partnerConnSeq;
 			} else {
 				// 템플릿 있음
 
@@ -268,6 +274,7 @@ public class GateServiceImpl implements GateService {
 
 				// response에 쿠키로 mnm 에 매출코드 심기
 				addPartnerCookie(response, siteCd, partnerId);
+				redirectUrl += "&gSeq=" + partnerConnSeq;
 			}
 
 			//return redirectUrl;
@@ -277,7 +284,7 @@ public class GateServiceImpl implements GateService {
 		/* 예제:
 		redirectUrl += "&gSeq=" + partnerConnSeq;
 		 */
-
+		
 		return redirectUrl;
 	}
 
