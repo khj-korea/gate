@@ -26,7 +26,7 @@ public class GateController {
 	@RequestMapping(value = "/index.html", method = RequestMethod.GET)
 	@ResponseBody
 	public String getIndexPage(Model model, final HttpSession session, HttpServletResponse response, HttpServletRequest request) {
-		return "<html><body>Tricycle Gate-responsebody</body></html>";
+		return "<html><body>Tricycle Gate-responsebody  <button type=\"button\" onclick=\"location.href='http://localhost:8080/partnerid=naverdb&type=detail_prstcd&param1=YJ8MBP681WH&param2=ZZ9' \">test referer</button> </body></html>";
 	}
 
 	@RequestMapping(method = RequestMethod.GET)

@@ -1,14 +1,5 @@
 package com.tricycle.gate.service;
 
-import com.tricycle.gate.mapper.mysql.MysqlGateMapper;
-import com.tricycle.gate.mapper.postgre.PostgreGateMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -16,6 +7,19 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.tricycle.gate.mapper.mysql.MysqlGateMapper;
+import com.tricycle.gate.mapper.postgre.PostgreGateMapper;
 
 @Service
 public class GateServiceImpl implements GateService {
@@ -89,6 +93,9 @@ public class GateServiceImpl implements GateService {
 
 		// 이전URL 획득
 		String refererUrl = "";
+		HttpServletRequest request1 = ((ServletRequestAttributes) RequestContextHolder
+				.getRequestAttributes()).getRequest();
+		String temp = request1.getHeader("referer");
 		if (null != request.getHeader("referer")) {
 			refererUrl = request.getHeader("referer");
 		}
@@ -379,5 +386,15 @@ public class GateServiceImpl implements GateService {
 		cookie.setSecure(false);
 		cookie.setHttpOnly(false);
 		response.addCookie(cookie);
+		
+		String test = "IC=Y"; 
+		 final Cookie cookie2 = new Cookie("PI2", test); 
+		 cookie2.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain()); 
+		 cookie2.setPath("/"); 
+		 cookie2.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일 
+		 cookie2.setSecure(false); 
+		 cookie2.setHttpOnly(false); 
+		 response.addCookie(cookie2); 
+
 	}
 }
