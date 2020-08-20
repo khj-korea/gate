@@ -45,16 +45,21 @@ public class GateServiceImpl implements GateService {
 		String deviceCd = getDeviceCd(request);
 
 		// 도메인을 제외한 URI 획득
-		String requestUri = request.getRequestURI();
-		if (null != requestUri && 0 < requestUri.length() && requestUri.substring(0, 1).equals("/")) {
-			requestUri = requestUri.substring(1);
-		}
+		//String requestUri = request.getRequestURI();
+		//if (null != requestUri && 0 < requestUri.length() && requestUri.substring(0, 1).equals("/")) {
+		//	requestUri = requestUri.substring(1);
+		//}
+
 		Boolean isHaveQueryString = null != request.getQueryString() && 0 < request.getQueryString().length();
+
+		// url_parameter (requestUri) 값 획득
+		String urlParameter = request.getQueryString();
+
 		// URL 쿼리 맵 획득
 		Map<String, Object> queryMap = null;
 		try {
-			//queryMap = splitQuery(request.getQueryString());
-			queryMap = splitQuery(requestUri);
+			queryMap = splitQuery(urlParameter);
+			//queryMap = splitQuery(requestUri);
 		} catch (UnsupportedEncodingException e) {
 
 		}
@@ -114,8 +119,6 @@ public class GateServiceImpl implements GateService {
 			}
 		}
 
-		// url_parameter (requestUri) 값 획득
-		String urlParameter = requestUri;
 
 		// 접속 요청한 모바일PC 여부 확인
 		String reqDeviceCd = "";
