@@ -263,7 +263,7 @@ public class GateServiceImpl implements GateService {
 				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
 
 				// 파라메터 1~5 존재 확인 후 to-be 테이블에서 replace하기
-				for (int index=1; index<6; index++) {
+				for (int index = 1; index < 6; index++) {
 					if (0 < mappingTemplate.getOrDefault(String.format("param%d", index), "").toString().length()) {
 						//String key = mappingTemplate.get(String.format("param%d", index)).toString();
 						String key = String.format("param%d", index);
@@ -279,7 +279,13 @@ public class GateServiceImpl implements GateService {
 
 				// response에 쿠키로 mnm 에 매출코드 심기
 				addPartnerCookie(response, siteCd, partnerId);
-				redirectUrl += "&gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
+
+				if (redirectUrl.contains("?")){
+					redirectUrl += "&gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
+				}else{
+					redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
+				}
+
 			}
 
 			//return redirectUrl;
