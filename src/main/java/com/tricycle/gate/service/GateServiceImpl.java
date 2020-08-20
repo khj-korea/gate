@@ -1,5 +1,16 @@
 package com.tricycle.gate.service;
 
+import com.tricycle.gate.mapper.mysql.MysqlGateMapper;
+import com.tricycle.gate.mapper.postgre.PostgreGateMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -7,19 +18,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import com.tricycle.gate.mapper.mysql.MysqlGateMapper;
-import com.tricycle.gate.mapper.postgre.PostgreGateMapper;
 
 @Service
 public class GateServiceImpl implements GateService {
@@ -184,7 +182,7 @@ public class GateServiceImpl implements GateService {
 			}
 			//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
 			redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
-			redirectUrl += "?gSeq=" + partnerConnSeq;
+			redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
 		} else {
 			// 매출코드가 존재
 
@@ -257,7 +255,7 @@ public class GateServiceImpl implements GateService {
 				}
 				//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
 				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
-				redirectUrl += "?gSeq=" + partnerConnSeq;
+				redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
 			} else {
 				// 템플릿 있음
 
@@ -281,7 +279,7 @@ public class GateServiceImpl implements GateService {
 
 				// response에 쿠키로 mnm 에 매출코드 심기
 				addPartnerCookie(response, siteCd, partnerId);
-				redirectUrl += "&gSeq=" + partnerConnSeq;
+				redirectUrl += "&gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
 			}
 
 			//return redirectUrl;
@@ -386,15 +384,20 @@ public class GateServiceImpl implements GateService {
 		cookie.setSecure(false);
 		cookie.setHttpOnly(false);
 		response.addCookie(cookie);
-		
-		String test = "IC=Y"; 
-		 final Cookie cookie2 = new Cookie("PI2", test); 
-		 cookie2.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain()); 
-		 cookie2.setPath("/"); 
-		 cookie2.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일 
-		 cookie2.setSecure(false); 
-		 cookie2.setHttpOnly(false); 
-		 response.addCookie(cookie2); 
 
+		setCookie(response, siteCd, "NFG", "Y", 60 * 60 * 24 * 365, false, false);
 	}
+
+	@Override
+	public void setCookie(HttpServletResponse response, String siteCd, String cookieName, String cookieValue, int expiry, boolean Secure, boolean HttpOnly) {
+
+		final Cookie cookie = new Cookie(cookieName, cookieValue);
+		cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
+		cookie.setPath("/");
+		cookie.setMaxAge(expiry);
+		cookie.setSecure(false);
+		cookie.setHttpOnly(false);
+		response.addCookie(cookie);
+	}
+
 }
