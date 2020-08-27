@@ -11,13 +11,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class GateServiceImpl implements GateService {
@@ -34,7 +33,7 @@ public class GateServiceImpl implements GateService {
 	}
 
 	@Override
-	public String getGateRedirectUrl(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	public String getGateRedirectUrl(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
 
 		String redirectUrl = "";
 
@@ -133,33 +132,21 @@ public class GateServiceImpl implements GateService {
 		mappingTableSearchMap.put("type", requestType);
 		List<Map<String, Object>> gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
 
-		// 1. 방문 카운트 insert
-		Map<String, Object> partnerConnCountMap = new HashMap<>();
-		partnerConnCountMap.put("partnerId", partnerId);
-		partnerConnCountMap.put("siteCd", siteCd);
-		partnerConnCountMap.put("deviceCd", deviceCd);
-		partnerConnCountMap.put("clientIp", clientIp);
-		partnerConnCountMap.put("userAgent", userAgent);
-		partnerConnCountMap.put("refererUrl", refererUrl);
-		partnerConnCountMap.put("pcid", pcid);
-		partnerConnCountMap.put("uid", uid);
-		partnerConnCountMap.put("urlParameter", urlParameter);
-		mysqlGateMapper.insertPartnerConnCount(partnerConnCountMap);
-
-		// 방문 카운트 insert 한 레코드의 SEQ를 읽어온다
-		String partnerConnSeq = "";
-		partnerConnSeq = partnerConnCountMap.getOrDefault("seq", "").toString();
-
+		// 에러 로그 Map
 		Map<String, Object> excptLogMap = new HashMap<>();
-		excptLogMap.put("log_seq", partnerConnSeq);
+
 		// 2. 매출코드 유효성 체크
 		Map<String, Object> partnerIdDetailMap = mysqlGateMapper.getPartnerIdDetail(partnerId);
 		if (null == partnerIdDetailMap) {
 			// 매출코드가 DB에 없음..
 
+			// 매출코드가 정상이 아니어도 방문 카운트 Insert
+			String partnerConnSeq = this.insertPartnerConn(partnerId, siteCd, deviceCd, clientIp, userAgent, refererUrl, pcid, uid, urlParameter);
+
 			// todo: 예외처리.. 무엇을?
 
-			// todo: Log Insert.. 무엇을?
+			// 에러 Log Insert
+			excptLogMap.put("log_seq", partnerConnSeq);
 			excptLogMap.put("log_type","1");
 			int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 			// 기본 매출코드 셋팅 후 홈 랜딩
@@ -189,6 +176,66 @@ public class GateServiceImpl implements GateService {
 		} else {
 			// 매출코드가 존재
 
+			// 네이버 매출코드 처리
+			if (-1 < partnerId.indexOf("naverdb") || -1 < partnerId.indexOf("_naver_m") || -1 < partnerId.indexOf("naverlogo")) {
+				Boolean isNaverImported = false;
+				List<String> chkNvKeys = Arrays.asList(
+						"n_ad",
+						"n_media",
+						"n_rank",
+						"n_query",
+						"n_ad_group",
+						"n_mall_pid",
+						"n_campaign_type"
+				);
+
+				for (String nvKey : chkNvKeys) {
+					if (queryMap.containsValue(nvKey) /*|| queryMap.containsKey(nvKey)*/) {
+						isNaverImported = true;
+						break;
+					}
+				}
+
+				if (true == isNaverImported) {
+					String sitePrefix = "";
+					switch (siteCd) {
+						case "1":
+							sitePrefix = "h_";
+							break;
+						case "2":
+							sitePrefix = "b_";
+							break;
+					}
+					if (deviceCd.equals("001")) {
+						partnerId = sitePrefix + "naver_sbsa_w";
+					} else {
+						partnerId = sitePrefix + "naver_sbsa_m";
+					}
+				}
+
+				// 네이버 마일리지 Ncisy 체크
+				if (null != queryMap.get("Ncisy")) {
+					String sitePrefix = "";
+					switch (siteCd) {
+						case "1":
+							sitePrefix = "H_";
+							break;
+						case "2":
+							sitePrefix = "B_";
+							break;
+					}
+					this.setCookie(response, siteCd, sitePrefix + "NaverNcisy", queryMap.getOrDefault("Ncisy", "").toString(), null, false, false);
+				}
+
+				// 네이버 CPA 스크립트 관련
+				if (null != queryMap.get("NaPm")) {
+					this.setCookie(response, siteCd, "CPAValidator", queryMap.getOrDefault("NaPm", "").toString(), 60 * 60 * 24, false, false);
+				}
+
+				if (-1 < partnerId.indexOf("naverlogo")) {
+				}
+			}
+
 			if (reqDeviceCd.equals("001")) {
 				// PC 게이트페이지로 접근 요청
 
@@ -201,12 +248,26 @@ public class GateServiceImpl implements GateService {
 					// 매출코드를 MC매출코드로 변경
 					if (0 < partnerIdDetailMap.getOrDefault("mobileid", "").toString().length()) {
 						partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
+
+						// 모바일 매출코드로 변경되었으니 mh_pc_ver 쿠키 N값으로 생성
+						setCookie(response, siteCd, "mh_pc_ver", "N", 5, false, false);
 					}
 				}
 			} else {
 				// MC 게이트페이지로 접근 요청
 				// 분기처리 없음
 			}
+
+			if (deviceCd.equals("002")) {
+				// 디바이스가 모바일이면 쿠키 삽입(로컬스토리지 로그 삽입 대체)
+				this.setCookie(response, siteCd, "NFG_D", "M", null, false, false);
+
+				// 디바이스가 모바일이면 쿠키 삽입
+				this.setCookie(response, siteCd, "pCheck", "Y", null, false, false);
+			}
+
+			// 방문 카운트 Insert
+			String partnerConnSeq = this.insertPartnerConn(partnerId, siteCd, deviceCd, clientIp, userAgent, refererUrl, pcid, uid, urlParameter);
 
 			// 매핑테이블에 타입 조회
 			Map<String, Object> mappingTemplate = null;
@@ -233,7 +294,8 @@ public class GateServiceImpl implements GateService {
 
 				// todo: 예외처리.. 무엇을?
 
-				// todo: Log Insert.. 무엇을?
+				// 에러 Log Insert
+				excptLogMap.put("log_seq", partnerConnSeq);
 				excptLogMap.put("log_type","2");
 				int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 				// 기본 매출코드 셋팅 후 홈 랜딩
@@ -258,7 +320,7 @@ public class GateServiceImpl implements GateService {
 				}
 				//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
 				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
-				redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
+				redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;
 			} else {
 				// 템플릿 있음
 
@@ -283,6 +345,7 @@ public class GateServiceImpl implements GateService {
 				// response에 쿠키로 mnm 에 매출코드 심기
 				addPartnerCookie(response, siteCd, partnerId);
 
+				// redirect URL 뒤쪽에 방문 카운트 insert 한 레코드의 SEQ를 붙인다
 				if (redirectUrl.contains("?")){
 					redirectUrl += "&gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
 				}else{
@@ -294,11 +357,20 @@ public class GateServiceImpl implements GateService {
 			//return redirectUrl;
 		}
 
-		//todo: redirect URL 뒤쪽에 방문 카운트 insert 한 레코드의 SEQ를 붙인다.
-		/* 예제:
-		redirectUrl += "&gSeq=" + partnerConnSeq;
-		 */
-		
+		// 네이버 nv_pchs url 존재시 처리
+		if (0 < redirectUrl.indexOf("nv_pchs=")) {
+			// nv_pchs 값을 쿠키로 입력
+
+			// 리턴URL 텍스트를 URL객체로 생성
+			URL url = new URL(redirectUrl);
+			if (null != url) {
+				Map<String, Object> returnQueryMap = splitQuery(url);
+				if (null != returnQueryMap.get("nv_pchs")) {
+					this.setCookie(response, siteCd, "nv_pchs", returnQueryMap.get("nv_pchs").toString(), 60 * 60 * 24, false, false);
+				}
+			}
+		}
+
 		return redirectUrl;
 	}
 
@@ -398,15 +470,39 @@ public class GateServiceImpl implements GateService {
 	}
 
 	@Override
-	public void setCookie(HttpServletResponse response, String siteCd, String cookieName, String cookieValue, int expiry, boolean Secure, boolean HttpOnly) {
+	public void setCookie(HttpServletResponse response, String siteCd, String cookieName, String cookieValue, Integer expiry, boolean Secure, boolean HttpOnly) {
 
 		final Cookie cookie = new Cookie(cookieName, cookieValue);
 		cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
 		cookie.setPath("/");
-		cookie.setMaxAge(expiry);
+		if (null != expiry) {
+			cookie.setMaxAge(expiry);
+		} else {
+			cookie.setMaxAge(60 * 60 * 24); // 60초 * 60분 * 24시
+		}
 		cookie.setSecure(false);
 		cookie.setHttpOnly(false);
 		response.addCookie(cookie);
 	}
 
+	@Override
+	public String insertPartnerConn(String partnerId, String siteCd, String deviceCd, String clientIp, String userAgent, String refererUrl, String pcid, String uid, String urlParameter) {
+		Map<String, Object> partnerConnCountMap = new HashMap<>();
+		partnerConnCountMap.put("partnerId", partnerId);
+		partnerConnCountMap.put("siteCd", siteCd);
+		partnerConnCountMap.put("deviceCd", deviceCd);
+		partnerConnCountMap.put("clientIp", clientIp);
+		partnerConnCountMap.put("userAgent", userAgent);
+		partnerConnCountMap.put("refererUrl", refererUrl);
+		partnerConnCountMap.put("pcid", pcid);
+		partnerConnCountMap.put("uid", uid);
+		partnerConnCountMap.put("urlParameter", urlParameter);
+		mysqlGateMapper.insertPartnerConnCount(partnerConnCountMap);
+
+		// 방문 카운트 insert 한 레코드의 SEQ를 읽어온다
+		String partnerConnSeq = "";
+		partnerConnSeq = partnerConnCountMap.getOrDefault("seq", "").toString();
+
+		return partnerConnSeq;
+	}
 }

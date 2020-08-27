@@ -5,6 +5,7 @@ import lombok.Getter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.List;
@@ -39,7 +40,7 @@ public interface GateService {
 
 	public List<Map<String, Object>> getGateMappingTables();
 
-	public String getGateRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession);
+	public String getGateRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession) throws IOException;
 
 	public String getDeviceCd(HttpServletRequest request);
 	public String getSiteCd(HttpServletRequest request);
@@ -47,5 +48,7 @@ public interface GateService {
 	public Map<String, Object> splitQuery(URL url) throws UnsupportedEncodingException;
 	public Map<String, Object> splitQuery(String query) throws UnsupportedEncodingException;
 	public void addPartnerCookie(HttpServletResponse response, String siteCd, String partnerId);
-	public void setCookie(HttpServletResponse response, String siteCd, String cookieName, String cookieValue, int expiry, boolean Secure, boolean HttpOnly);
+	public void setCookie(HttpServletResponse response, String siteCd, String cookieName, String cookieValue, Integer expiry, boolean Secure, boolean HttpOnly);
+
+	public String insertPartnerConn(String partnerId, String siteCd, String deviceCd, String clientIp, String userAgent, String refererUrl, String pcid, String uid, String urlParameter);
 }
