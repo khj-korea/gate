@@ -177,64 +177,7 @@ public class GateServiceImpl implements GateService {
 			// 매출코드가 존재
 
 			// 네이버 매출코드 처리
-			if (-1 < partnerId.indexOf("naverdb") || -1 < partnerId.indexOf("_naver_m") || -1 < partnerId.indexOf("naverlogo")) {
-				Boolean isNaverImported = false;
-				List<String> chkNvKeys = Arrays.asList(
-						"n_ad",
-						"n_media",
-						"n_rank",
-						"n_query",
-						"n_ad_group",
-						"n_mall_pid",
-						"n_campaign_type"
-				);
-
-				for (String nvKey : chkNvKeys) {
-					if (queryMap.containsValue(nvKey) /*|| queryMap.containsKey(nvKey)*/) {
-						isNaverImported = true;
-						break;
-					}
-				}
-
-				if (true == isNaverImported) {
-					String sitePrefix = "";
-					switch (siteCd) {
-						case "1":
-							sitePrefix = "h_";
-							break;
-						case "2":
-							sitePrefix = "b_";
-							break;
-					}
-					if (deviceCd.equals("001")) {
-						partnerId = sitePrefix + "naver_sbsa_w";
-					} else {
-						partnerId = sitePrefix + "naver_sbsa_m";
-					}
-				}
-
-				// 네이버 마일리지 Ncisy 체크
-				if (null != queryMap.get("Ncisy")) {
-					String sitePrefix = "";
-					switch (siteCd) {
-						case "1":
-							sitePrefix = "H_";
-							break;
-						case "2":
-							sitePrefix = "B_";
-							break;
-					}
-					this.setCookie(response, siteCd, sitePrefix + "NaverNcisy", queryMap.getOrDefault("Ncisy", "").toString(), null, false, false);
-				}
-
-				// 네이버 CPA 스크립트 관련
-				if (null != queryMap.get("NaPm")) {
-					this.setCookie(response, siteCd, "CPAValidator", queryMap.getOrDefault("NaPm", "").toString(), 60 * 60 * 24, false, false);
-				}
-
-				if (-1 < partnerId.indexOf("naverlogo")) {
-				}
-			}
+			this.naverPartnerWork(response, partnerId, siteCd, deviceCd, queryMap);
 
 			if (reqDeviceCd.equals("001")) {
 				// PC 게이트페이지로 접근 요청
@@ -504,5 +447,66 @@ public class GateServiceImpl implements GateService {
 		partnerConnSeq = partnerConnCountMap.getOrDefault("seq", "").toString();
 
 		return partnerConnSeq;
+	}
+
+	public void naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap) {
+		if (-1 < partnerId.indexOf("naverdb") || -1 < partnerId.indexOf("_naver_m") || -1 < partnerId.indexOf("naverlogo")) {
+			Boolean isNaverImported = false;
+			List<String> chkNvKeys = Arrays.asList(
+					"n_ad",
+					"n_media",
+					"n_rank",
+					"n_query",
+					"n_ad_group",
+					"n_mall_pid",
+					"n_campaign_type"
+			);
+
+			for (String nvKey : chkNvKeys) {
+				if (queryMap.containsValue(nvKey) /*|| queryMap.containsKey(nvKey)*/) {
+					isNaverImported = true;
+					break;
+				}
+			}
+
+			if (true == isNaverImported) {
+				String sitePrefix = "";
+				switch (siteCd) {
+					case "1":
+						sitePrefix = "h_";
+						break;
+					case "2":
+						sitePrefix = "b_";
+						break;
+				}
+				if (deviceCd.equals("001")) {
+					partnerId = sitePrefix + "naver_sbsa_w";
+				} else {
+					partnerId = sitePrefix + "naver_sbsa_m";
+				}
+			}
+
+			// 네이버 마일리지 Ncisy 체크
+			if (null != queryMap.get("Ncisy")) {
+				String sitePrefix = "";
+				switch (siteCd) {
+					case "1":
+						sitePrefix = "H_";
+						break;
+					case "2":
+						sitePrefix = "B_";
+						break;
+				}
+				this.setCookie(response, siteCd, sitePrefix + "NaverNcisy", queryMap.getOrDefault("Ncisy", "").toString(), null, false, false);
+			}
+
+			// 네이버 CPA 스크립트 관련
+			if (null != queryMap.get("NaPm")) {
+				this.setCookie(response, siteCd, "CPAValidator", queryMap.getOrDefault("NaPm", "").toString(), 60 * 60 * 24, false, false);
+			}
+
+			if (-1 < partnerId.indexOf("naverlogo")) {
+			}
+		}
 	}
 }
