@@ -456,7 +456,7 @@ public class GateServiceImpl implements GateService {
 			);
 
 			for (String nvKey : chkNvKeys) {
-				if (queryMap.containsValue(nvKey) /*|| queryMap.containsKey(nvKey)*/) {
+				if (queryMap.containsKey(nvKey)) {
 					isNaverImported = true;
 					break;
 				}
