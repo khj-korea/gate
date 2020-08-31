@@ -179,26 +179,19 @@ public class GateServiceImpl implements GateService {
 			// 네이버 매출코드 처리
 			this.naverPartnerWork(response, partnerId, siteCd, deviceCd, queryMap);
 
-			if (reqDeviceCd.equals("001")) {
-				// PC 게이트페이지로 접근 요청
-
-				if (deviceCd.equals("001")) {
-					// 현재 접속 장비가 PC
-					// do nothing
-				} else {
-					// 현재 접속 장비가 MC
-
-					// 매출코드를 MC매출코드로 변경
-					if (0 < partnerIdDetailMap.getOrDefault("mobileid", "").toString().length()) {
-						partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
-
-						// 모바일 매출코드로 변경되었으니 mh_pc_ver 쿠키 N값으로 생성
-						setCookie(response, siteCd, "mh_pc_ver", "N", 5, false, false);
-					}
-				}
+			if (deviceCd.equals("001")) {
+				// 현재 접속 장비가 PC
+				// do nothing
 			} else {
-				// MC 게이트페이지로 접근 요청
-				// 분기처리 없음
+				// 현재 접속 장비가 MC
+
+				// 매출코드를 MC매출코드로 변경
+				if (0 < partnerIdDetailMap.getOrDefault("mobileid", "").toString().length()) {
+					partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
+
+					// 모바일 매출코드로 변경되었으니 mh_pc_ver 쿠키 N값으로 생성
+					setCookie(response, siteCd, "mh_pc_ver", "N", 5, false, false);
+				}
 			}
 
 			if (deviceCd.equals("002")) {
