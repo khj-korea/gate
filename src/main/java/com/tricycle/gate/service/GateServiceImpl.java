@@ -257,6 +257,10 @@ public class GateServiceImpl implements GateService {
 				//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
 				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
 				redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;
+
+				if (partnerId.equals("h_naver_m") && null != queryMap.get("napm")) {
+					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
+				}
 			} else {
 				// 템플릿 있음
 
@@ -288,6 +292,9 @@ public class GateServiceImpl implements GateService {
 					redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
 				}
 
+				if (partnerId.equals("h_naver_m") && null != queryMap.get("napm")) {
+					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
+				}
 			}
 
 			//return redirectUrl;
