@@ -293,20 +293,6 @@ public class GateServiceImpl implements GateService {
 			//return redirectUrl;
 		}
 
-		// 네이버 nv_pchs url 존재시 처리
-		if (0 < redirectUrl.indexOf("nv_pchs=")) {
-			// nv_pchs 값을 쿠키로 입력
-
-			// 리턴URL 텍스트를 URL객체로 생성
-			URL url = new URL(redirectUrl);
-			if (null != url) {
-				Map<String, Object> returnQueryMap = splitQuery(url);
-				if (null != returnQueryMap.get("nv_pchs")) {
-					this.setCookie(response, siteCd, "nv_pchs", returnQueryMap.get("nv_pchs").toString(), 60 * 60 * 24, false, false);
-				}
-			}
-		}
-
 		return redirectUrl;
 	}
 
@@ -500,6 +486,13 @@ public class GateServiceImpl implements GateService {
 
 			if (-1 < partnerId.indexOf("naverlogo")) {
 			}
+		}
+
+		// 네이버 nv_pchs url 존재시 처리
+		if (null != queryMap.get("nv_pchs")) {
+			// nv_pchs 값을 쿠키로 입력
+
+			this.setCookie(response, siteCd, "nv_pchs", queryMap.get("nv_pchs").toString(), 60 * 60 * 24, false, false);
 		}
 	}
 }
