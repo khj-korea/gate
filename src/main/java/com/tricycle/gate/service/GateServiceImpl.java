@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -192,13 +191,13 @@ public class GateServiceImpl implements GateService {
 					partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
 
 					// 모바일 매출코드로 변경되었으니 mh_pc_ver 쿠키 N값으로 생성
-					setCookie(response, siteCd, "mh_pc_ver", "N", 5, false, false);
+					setCookie(response, siteCd, "mh_pc_ver", "N", 60 * 60 * 24 * 5, false, false);
 				}
 			}
 
 			if (deviceCd.equals("002")) {
 				// 디바이스가 모바일이면 쿠키 삽입(로컬스토리지 로그 삽입 대체)
-				this.setCookie(response, siteCd, "NFG_D", "M", null, false, false);
+				//this.setCookie(response, siteCd, "NFG_D", "M", null, false, false);
 
 				// 디바이스가 모바일이면 쿠키 삽입
 				this.setCookie(response, siteCd, "pCheck", "Y", null, false, false);
@@ -260,7 +259,7 @@ public class GateServiceImpl implements GateService {
 				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
 				redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;
 
-				if (partnerId.equals("h_naver_m") && null != queryMap.get("napm")) {
+				if ((-1 < partnerId.indexOf("_naver_m") || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
 					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
 				}
 			} else {
@@ -408,9 +407,10 @@ public class GateServiceImpl implements GateService {
 		cookie.setPath("/");
 		if (null != expiry) {
 			cookie.setMaxAge(expiry);
-		} else {
-			cookie.setMaxAge(60 * 60 * 24); // 60초 * 60분 * 24시
 		}
+		//else {
+			//cookie.setMaxAge(60 * 60 * 24); // 60초 * 60분 * 24시
+		//}
 		cookie.setSecure(false);
 		cookie.setHttpOnly(false);
 		response.addCookie(cookie);
@@ -438,7 +438,7 @@ public class GateServiceImpl implements GateService {
 	}
 
 	public void naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap) {
-		if (-1 < this.partnerId.indexOf("naverdb") || -1 < this.partnerId.indexOf("_naver_m") || -1 < this.partnerId.indexOf("naverlogo")) {
+		if (-1 < this.partnerId.indexOf("naverdb") || -1 < this.partnerId.indexOf("_naver_m")) {
 			Boolean isNaverImported = false;
 			List<String> chkNvKeys = Arrays.asList(
 					"n_ad",
@@ -475,7 +475,7 @@ public class GateServiceImpl implements GateService {
 			}
 
 			// 네이버 마일리지 Ncisy 체크
-			if (null != queryMap.get("Ncisy")) {
+			if (null != queryMap.get("ncisy")) {
 				String sitePrefix = "";
 				switch (siteCd) {
 					case "1":
@@ -485,12 +485,12 @@ public class GateServiceImpl implements GateService {
 						sitePrefix = "B_";
 						break;
 				}
-				this.setCookie(response, siteCd, sitePrefix + "NaverNcisy", queryMap.getOrDefault("Ncisy", "").toString(), null, false, false);
+				this.setCookie(response, siteCd, sitePrefix + "NaverNcisy", queryMap.getOrDefault("ncisy", "").toString(), null, false, false);
 			}
 
 			// 네이버 CPA 스크립트 관련
 			if (null != queryMap.get("napm")) {
-				this.setCookie(response, siteCd, "CPAValidator", queryMap.getOrDefault("NaPm", "").toString(), 60 * 60 * 24, false, false);
+				this.setCookie(response, siteCd, "CPAValidator", queryMap.getOrDefault("napm", "").toString(), 60 * 60 * 24, false, false);
 			}
 
 			if (-1 < partnerId.indexOf("naverlogo")) {
@@ -501,7 +501,7 @@ public class GateServiceImpl implements GateService {
 		if (null != queryMap.get("nv_pchs")) {
 			// nv_pchs 값을 쿠키로 입력
 
-			this.setCookie(response, siteCd, "nv_pchs", queryMap.get("nv_pchs").toString(), 60 * 60 * 24, false, false);
+			this.setCookie(response, siteCd, "nv_pchs", queryMap.get("nv_pchs").toString(), 60 * 60 * 24 * 30, false, false);
 		}
 	}
 }
