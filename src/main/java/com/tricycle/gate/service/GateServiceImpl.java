@@ -27,6 +27,8 @@ public class GateServiceImpl implements GateService {
 	@Autowired
 	private PostgreGateMapper postgreGateMapper;
 
+	private String partnerId;
+
 	@Override
 	public List<Map<String, Object>> getGateMappingTables() {
 		return null;
@@ -71,7 +73,7 @@ public class GateServiceImpl implements GateService {
 		}
 
 		// PartnerId 획득
-		String partnerId = "";
+		//String partnerId = "";
 		if (null != queryMap) {
 			partnerId = queryMap.getOrDefault("partnerid", "").toString();
 		}
@@ -387,7 +389,7 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public void addPartnerCookie(HttpServletResponse response, String siteCd, String partnerId) {
 
-		final Cookie cookie = new Cookie("mnm", partnerId);
+		final Cookie cookie = new Cookie("mnm", this.partnerId);
 		cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
 		cookie.setPath("/");
 		cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
@@ -417,7 +419,7 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public String insertPartnerConn(String partnerId, String siteCd, String deviceCd, String clientIp, String userAgent, String refererUrl, String pcid, String uid, String urlParameter) {
 		Map<String, Object> partnerConnCountMap = new HashMap<>();
-		partnerConnCountMap.put("partnerId", partnerId);
+		partnerConnCountMap.put("partnerId", this.partnerId);
 		partnerConnCountMap.put("siteCd", siteCd);
 		partnerConnCountMap.put("deviceCd", deviceCd);
 		partnerConnCountMap.put("clientIp", clientIp);
@@ -436,7 +438,7 @@ public class GateServiceImpl implements GateService {
 	}
 
 	public void naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap) {
-		if (-1 < partnerId.indexOf("naverdb") || -1 < partnerId.indexOf("_naver_m") || -1 < partnerId.indexOf("naverlogo")) {
+		if (-1 < this.partnerId.indexOf("naverdb") || -1 < this.partnerId.indexOf("_naver_m") || -1 < this.partnerId.indexOf("naverlogo")) {
 			Boolean isNaverImported = false;
 			List<String> chkNvKeys = Arrays.asList(
 					"n_ad",
@@ -466,9 +468,9 @@ public class GateServiceImpl implements GateService {
 						break;
 				}
 				if (deviceCd.equals("001")) {
-					partnerId = sitePrefix + "naver_sbsa_w";
+					this.partnerId = sitePrefix + "naver_sbsa_w";
 				} else {
-					partnerId = sitePrefix + "naver_sbsa_m";
+					this.partnerId = sitePrefix + "naver_sbsa_m";
 				}
 			}
 
@@ -487,7 +489,7 @@ public class GateServiceImpl implements GateService {
 			}
 
 			// 네이버 CPA 스크립트 관련
-			if (null != queryMap.get("NaPm")) {
+			if (null != queryMap.get("napm")) {
 				this.setCookie(response, siteCd, "CPAValidator", queryMap.getOrDefault("NaPm", "").toString(), 60 * 60 * 24, false, false);
 			}
 
