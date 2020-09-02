@@ -261,6 +261,7 @@ public class GateServiceImpl implements GateService {
 				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
 				redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;
 
+
 				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
 					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
 				}
@@ -295,9 +296,10 @@ public class GateServiceImpl implements GateService {
 					redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
 				}
 
-				if (partnerId.equals("h_naver_m") && null != queryMap.get("napm")) {
+				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
 					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
 				}
+
 			}
 
 			//return redirectUrl;
