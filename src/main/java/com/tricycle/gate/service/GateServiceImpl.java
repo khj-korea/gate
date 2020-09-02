@@ -178,7 +178,7 @@ public class GateServiceImpl implements GateService {
 			// 매출코드가 존재
 
 			// 네이버 매출코드 처리
-			this.naverPartnerWork(response, partnerId, siteCd, deviceCd, queryMap);
+			boolean isChangedNaverPartnerid = this.naverPartnerWork(response, partnerId, siteCd, deviceCd, queryMap);
 
 			if (deviceCd.equals("001")) {
 				// 현재 접속 장비가 PC
@@ -188,7 +188,9 @@ public class GateServiceImpl implements GateService {
 
 				// 매출코드를 MC매출코드로 변경
 				if (0 < partnerIdDetailMap.getOrDefault("mobileid", "").toString().length()) {
-					partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
+					if (false == isChangedNaverPartnerid) {
+						partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
+					}
 
 					// 모바일 매출코드로 변경되었으니 mh_pc_ver 쿠키 N값으로 생성
 					setCookie(response, siteCd, "mh_pc_ver", "N", 60 * 60 * 24 * 5, false, false);
@@ -437,7 +439,8 @@ public class GateServiceImpl implements GateService {
 		return partnerConnSeq;
 	}
 
-	public void naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap) {
+	public boolean naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap) {
+		boolean isChangedNaverPartnerid = false;
 		if (-1 < this.partnerId.indexOf("naverdb") || -1 < this.partnerId.indexOf("_naver_m")) {
 			Boolean isNaverImported = false;
 			List<String> chkNvKeys = Arrays.asList(
@@ -472,6 +475,7 @@ public class GateServiceImpl implements GateService {
 				} else {
 					this.partnerId = sitePrefix + "naver_sbsa_m";
 				}
+				isChangedNaverPartnerid = true;
 			}
 
 			// 네이버 마일리지 Ncisy 체크
@@ -503,5 +507,7 @@ public class GateServiceImpl implements GateService {
 
 			this.setCookie(response, siteCd, "nv_pchs", queryMap.get("nv_pchs").toString(), 60 * 60 * 24 * 30, false, false);
 		}
+
+		return isChangedNaverPartnerid;
 	}
 }
