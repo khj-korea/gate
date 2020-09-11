@@ -89,7 +89,7 @@ public class GateServiceImpl implements GateService {
 		}
 
 		// UserAgent 획득
-		String userAgent = request.getHeader("User-Agent").toUpperCase();
+		String userAgent = request.getHeader("User-Agent");
 		if (null == userAgent || 1 > userAgent.length()) {
 			return "";
 		}
