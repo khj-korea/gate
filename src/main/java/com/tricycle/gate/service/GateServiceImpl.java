@@ -173,7 +173,13 @@ public class GateServiceImpl implements GateService {
 			}
 			//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
 			redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
-			redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
+
+			if (redirectUrl.contains("?")){
+				redirectUrl += "&_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+			}else{
+				redirectUrl += "?_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+			}
+
 		} else {
 			// 매출코드가 존재
 
@@ -259,7 +265,12 @@ public class GateServiceImpl implements GateService {
 				}
 				//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
 				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
-				redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;
+
+				if (redirectUrl.contains("?")){
+					redirectUrl += "&_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+				}else{
+					redirectUrl += "?_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+				}
 
 
 				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
@@ -291,9 +302,9 @@ public class GateServiceImpl implements GateService {
 
 				// redirect URL 뒤쪽에 방문 카운트 insert 한 레코드의 SEQ를 붙인다
 				if (redirectUrl.contains("?")){
-					redirectUrl += "&gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
+					redirectUrl += "&_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
 				}else{
-					redirectUrl += "?gSeq=" + partnerConnSeq + "&_n_m2=" + partnerId;;
+					redirectUrl += "?_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
 				}
 
 				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
