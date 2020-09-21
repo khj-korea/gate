@@ -9,4 +9,5 @@ import java.util.Map;
 public interface PostgreGateMapper {
 
     Map<String, Object> getPrdInfoByPrdno(String prdNo);
+    List<Map<String, Object>> getPrdInfoByPCode(String pcode, String site_cd);
 }

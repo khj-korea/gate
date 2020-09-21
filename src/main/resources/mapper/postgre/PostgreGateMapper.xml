@@ -10,4 +10,11 @@
         FROM ecomms.tpd_prd prd
         WHERE prd.prd_no = #{prdNo}::int
     </select>
+
+    <select id="getPrdInfoByPCode" resultType="java.util.Map">
+        SELECT prd.prd_no, prd.prd_cd, prd.color_cd
+        FROM ecomms.tpd_prd prd
+        WHERE prd.pcode = #{pcode}
+        AND prd.site_cd  = #{site_cd}
+    </select>
 </mapper>

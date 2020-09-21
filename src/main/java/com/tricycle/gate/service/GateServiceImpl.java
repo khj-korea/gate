@@ -36,6 +36,7 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public String getGateRedirectUrl(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
 
+
 		String redirectUrl = "";
 
 		// 접속 URL 도메인 확인 후 사이트 확인
@@ -54,6 +55,9 @@ public class GateServiceImpl implements GateService {
 
 		// url_parameter (requestUri) 값 획득
 		String urlParameter = request.getQueryString();
+
+		String urltemplateType = "url_template_asis";
+
 
 		// URL 쿼리 맵 획득
 		Map<String, Object> queryMap = null;
@@ -171,8 +175,8 @@ public class GateServiceImpl implements GateService {
 					}
 				}
 			}
-			//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
-			redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
+
+			redirectUrl = mappingTemplate.getOrDefault(urltemplateType, "").toString();
 
 			if (redirectUrl.contains("?")){
 				redirectUrl += "&_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
@@ -263,8 +267,8 @@ public class GateServiceImpl implements GateService {
 						}
 					}
 				}
-				//return mappingTemplate.getOrDefault("url_template_asis", "").toString();
-				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
+
+				redirectUrl = mappingTemplate.getOrDefault(urltemplateType, "").toString();
 
 				if (redirectUrl.contains("?")){
 					redirectUrl += "&_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
@@ -280,7 +284,8 @@ public class GateServiceImpl implements GateService {
 				// 템플릿 있음
 
 				// 리다이렉트 url 획득
-				redirectUrl = mappingTemplate.getOrDefault("url_template_asis", "").toString();
+				redirectUrl = mappingTemplate.getOrDefault(urltemplateType, "").toString();
+
 
 				// 파라메터 1~5 존재 확인 후 to-be 테이블에서 replace하기
 				for (int index = 1; index < 6; index++) {
@@ -291,6 +296,15 @@ public class GateServiceImpl implements GateService {
 						String value = "";
 						if (null != queryMap) {
 							value = queryMap.getOrDefault(key, "").toString();
+						}
+
+						//차세대 오픈 시에는 Pcode를 prd_no로 변경하여 리다이렉트
+						if(urltemplateType.equals("url_template_tobe") && requestType.equals("detail_prstcd") && key.equals("param3"))
+						{
+							List<Map<String, Object>> prdNoInfo = postgreGateMapper.getPrdInfoByPCode(value.toUpperCase(), siteCd);
+							if(prdNoInfo != null && prdNoInfo.size() > 0) {
+								value = prdNoInfo.get(0).getOrDefault("prd_no", value).toString();
+							}
 						}
 
 						redirectUrl = redirectUrl.replace(String.format("{param%d}", index), value);
@@ -306,6 +320,12 @@ public class GateServiceImpl implements GateService {
 				}else{
 					redirectUrl += "?_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
 				}
+
+				if(urltemplateType.equals("url_template_tobe"))
+				{
+					redirectUrl += "&partnerid=" + partnerId;
+				}
+
 
 				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
 					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
