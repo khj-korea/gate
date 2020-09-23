@@ -412,7 +412,7 @@ public class GateServiceImpl implements GateService {
 				for (String pair : pairs) {
 					int idx = pair.indexOf("=");
 					if (-1 < idx) {
-						query_pairs.put(URLDecoder.decode(pair.substring(0, idx).toLowerCase(), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1).toLowerCase(), "UTF-8"));
+						query_pairs.put(URLDecoder.decode(pair.substring(0, idx).toLowerCase(), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
 					}
 				}
 			}
