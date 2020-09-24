@@ -140,9 +140,6 @@ public class GateServiceImpl implements GateService {
 
 		//해당 partnerid에 예외로직이 없을경우
 		if(gateMappingTables.size() < 1){
-			mappingTableSearchMap.put("siteCd", siteCd);
-			mappingTableSearchMap.put("deviceCd", deviceCd);
-			mappingTableSearchMap.put("type", requestType);
 			mappingTableSearchMap.put("partnerid", "");
 			gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
 		}

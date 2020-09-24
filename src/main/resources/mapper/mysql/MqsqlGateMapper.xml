@@ -44,7 +44,7 @@
         <if test="type != null and type != ''">
             AND (LCASE(mapping.type) = LCASE(#{type}) OR LCASE(mapping.type) = 'home')
         </if>
-        <if test="partnerid != null and partnerid != ''">
+        <if test="partnerid != null">
             AND mapping.partner_id = #{partnerid}
         </if>
     </select>
