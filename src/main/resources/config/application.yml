@@ -26,6 +26,23 @@ spring:
     driverClassName: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
 
+
+
+logging:
+  path: ./log
+  level:
+    ROOT: TRACE
+    tricycle: TRACE
+    org.springframework.boot: TRACE
+    #    org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener.debug: DEBUG
+    #    org.springframework.boot.devtools: DEBUG
+    org.springframework.web: TRACE
+    org.hibernate.SQL: TRACE
+    org.hibernate.type.descriptor.sql: TRACE
+#    org.springframework.cloud.netflix.eureka: TRACE
+#    com.netflix.eureka: TRACE
+
+
 ---
 
 spring:
@@ -82,15 +99,15 @@ spring:
 
 
 logging:
-  path: /home/ec2-user/log/gate
+  path: ./log
   level:
-    ROOT: INFO
-    tricycle: DEBUG
-    org.springframework.boot: INFO
+    ROOT: TRACE
+    tricycle: TRACE
+    org.springframework.boot: TRACE
 #    org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener.debug: DEBUG
 #    org.springframework.boot.devtools: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
+    org.springframework.web: TRACE
+    org.hibernate.SQL: TRACE
     org.hibernate.type.descriptor.sql: TRACE
 #    org.springframework.cloud.netflix.eureka: TRACE
 #    com.netflix.eureka: TRACE
