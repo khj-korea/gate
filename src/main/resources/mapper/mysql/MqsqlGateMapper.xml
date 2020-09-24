@@ -44,6 +44,9 @@
         <if test="type != null and type != ''">
             AND (LCASE(mapping.type) = LCASE(#{type}) OR LCASE(mapping.type) = 'home')
         </if>
+        <if test="partnerid != null and partnerid != ''">
+            AND mapping.partner_id = #{partnerid}
+        </if>
     </select>
 
     <select id="getPartnerIdDetail" parameterType="java.lang.String" resultType="java.util.Map">
