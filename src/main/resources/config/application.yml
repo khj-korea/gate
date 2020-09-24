@@ -99,7 +99,7 @@ spring:
 
 
 logging:
-  path: ./log
+  path: /home/ec2-user/log/gate
   level:
     ROOT: TRACE
     tricycle: TRACE
