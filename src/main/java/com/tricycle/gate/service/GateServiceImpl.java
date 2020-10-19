@@ -298,7 +298,15 @@ public class GateServiceImpl implements GateService {
 				for (int index = 1; index < 6; index++) {
 					if (0 < mappingTemplate.getOrDefault(String.format("param%d", index), "").toString().length()) {
 						//String key = mappingTemplate.get(String.format("param%d", index)).toString();
-						String key = String.format("param%d", index);
+
+						String key = "";
+
+						// &para 단어 unicode 치환 이슈로 인해 p1~p5 방식으로 사용변경 ( 기존 사용유저 에러방지를 위해 param방식 살려둠 )
+						if(request.getQueryString().contains("param")){
+							key = String.format("param%d", index);
+						}else{
+							key = String.format("p%d", index);
+						}
 
 						String value = "";
 						if (null != queryMap) {
@@ -306,7 +314,9 @@ public class GateServiceImpl implements GateService {
 						}
 
 						//차세대 오픈 시에는 Pcode를 prd_no로 변경하여 리다이렉트
-						if(urltemplateType.equals("url_template_tobe") && requestType.equals("detail_prstcd") && key.equals("param3"))
+						if(urltemplateType.equals("url_template_tobe") &&
+								((requestType.equals("detail_prstcd") && (key.equals("param3") || key.equals("p3")))
+								|| requestType.equals("detail_pcode") && (key.equals("param1") || key.equals("p1"))))
 						{
 							List<Map<String, Object>> prdNoInfo = postgreGateMapper.getPrdInfoByPCode(value.toUpperCase(), siteCd);
 							if(prdNoInfo != null && prdNoInfo.size() > 0) {
