@@ -194,9 +194,6 @@ public class GateServiceImpl implements GateService {
 		} else {
 			// 매출코드가 존재
 
-			// 네이버 매출코드 처리
-			boolean isChangedNaverPartnerid = this.naverPartnerWork(response, partnerId, siteCd, deviceCd, queryMap);
-
 			if (deviceCd.equals("001")) {
 				// 현재 접속 장비가 PC
 				// do nothing
@@ -205,22 +202,20 @@ public class GateServiceImpl implements GateService {
 
 				// 매출코드를 MC매출코드로 변경
 				if (0 < partnerIdDetailMap.getOrDefault("mobileid", "").toString().length()) {
-					if (false == isChangedNaverPartnerid) {
-						partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
-					}
-
-					// 모바일 매출코드로 변경되었으니 mh_pc_ver 쿠키 N값으로 생성
-					setCookie(response, siteCd, "mh_pc_ver", "N", 60 * 60 * 24 * 5, false, false);
+					partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
 				}
+
+				// 모바일 매출코드로 변경되었으니 mh_pc_ver 쿠키 N값으로 생성 => 201120_모바일에서 기기일 경우 생성
+				setCookie(response, siteCd, "mh_pc_ver", "N", 60 * 60 * 24 * 5, false, false);
 			}
 
-			if (deviceCd.equals("002")) {
+			/*if (deviceCd.equals("002")) {
 				// 디바이스가 모바일이면 쿠키 삽입(로컬스토리지 로그 삽입 대체)
 				//this.setCookie(response, siteCd, "NFG_D", "M", null, false, false);
 
-				// 디바이스가 모바일이면 쿠키 삽입
+				// 디바이스가 모바일이면 쿠키 삽입 => 201120_하단으로 이동
 				this.setCookie(response, siteCd, "pCheck", "Y", null, false, false);
-			}
+			}*/
 
 			// 방문 카운트 Insert
 			String partnerConnSeq = this.insertPartnerConn(partnerId, siteCd, deviceCd, clientIp, userAgent, refererUrl, pcid, uid, urlParameter);
@@ -283,10 +278,6 @@ public class GateServiceImpl implements GateService {
 					redirectUrl += "?_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
 				}
 
-
-				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
-					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
-				}
 			} else {
 				// 템플릿 있음
 
@@ -343,14 +334,11 @@ public class GateServiceImpl implements GateService {
 					redirectUrl += "&partnerid=" + partnerId;
 				}
 
-
-				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
-					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
-				}
-
 			}
 
-			//return redirectUrl;
+			// 디바이스가 모바일이면 쿠키 삽입 => 201120_하프PC 공통게이트에도 존재하는 쿠키 따라서, 공통게이트 페이지 인입시 pCheck 쿠키 삽입
+			this.setCookie(response, siteCd, "pCheck", "Y", null, false, false);
+
 		}
 
 		return redirectUrl;
@@ -640,7 +628,7 @@ public class GateServiceImpl implements GateService {
 			}
 		}
 
-		// 디바이스가 모바일이면 쿠키 삽입 => 201120_하프PC 공통게이트에도 존재하는 쿠키 따라서, 공통게이트 페이지 인ㅇ비시 pCheck 쿠키 삽입
+		// 디바이스가 모바일이면 쿠키 삽입 => 201120_하프PC 공통게이트에도 존재하는 쿠키 따라서, 공통게이트 페이지 인입시 pCheck 쿠키 삽입
 		this.setCookie(response, siteCd, "pCheck", "Y", null, false, false);
 
 		return redirectUrl;
