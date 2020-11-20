@@ -357,6 +357,296 @@ public class GateServiceImpl implements GateService {
 	}
 
 	@Override
+	public String getNaverGateRedirectUrl(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+
+		String redirectUrl = "";
+
+		// 접속 URL 도메인 확인 후 사이트 확인
+		String siteCd = getSiteCd(request);
+
+		// 접속 단말 모바일/PC 여부 확인
+		String deviceCd = getDeviceCd(request);
+
+		Boolean isHaveQueryString = null != request.getQueryString() && 0 < request.getQueryString().length();
+
+		// url_parameter (requestUri) 값 획득
+		String urlParameter = request.getQueryString();
+
+		String urltemplateType = "url_template_asis";
+
+		// URL 쿼리 맵 획득
+		Map<String, Object> queryMap = null;
+		try {
+			queryMap = splitQuery(urlParameter);
+		} catch (UnsupportedEncodingException e) {
+
+		}
+
+		// 요청타입 획득
+		String requestType = "";
+		if (null != queryMap) {
+			requestType = queryMap.getOrDefault("type", "").toString();
+		}
+
+		// PartnerId 획득
+		//String partnerId = "";
+		if (null != queryMap) {
+			partnerId = queryMap.getOrDefault("partnerid", "").toString();
+		}
+		if (0 == partnerId.length()) {
+			partnerId = siteCd.equals("1") ? "halfclub" : "b_boribori";
+		}
+
+		// 클라이언트 IP 획득
+		String clientIp = "";
+		if (null != request.getHeader("X-FORWARDED-FOR")) {
+			clientIp = request.getHeader("X-FORWARDED-FOR");
+		} else {
+			clientIp = request.getRemoteAddr();
+		}
+
+		// UserAgent 획득
+		String userAgent = request.getHeader("User-Agent");
+		if (null == userAgent || 1 > userAgent.length()) {
+			return "";
+		}
+
+		// 이전URL 획득
+		String refererUrl = "";
+		HttpServletRequest request1 = ((ServletRequestAttributes) RequestContextHolder
+				.getRequestAttributes()).getRequest();
+		String temp = request1.getHeader("referer");
+		if (null != request.getHeader("referer")) {
+			refererUrl = request.getHeader("referer");
+		}
+
+		// pcid 쿠키 획득
+		// uid 쿠키 획득
+		String pcid = "";
+		String uid = "";
+		if (null != request.getCookies()) {
+			Cookie[] cookies = request.getCookies();
+			for (int i=0; i<cookies.length; i++) {
+				Cookie cookie = cookies[i];
+				if (cookie.getName().equals("PCID")) {
+					pcid = cookie.getValue();
+				} else if (cookie.getName().equals("UID")) {
+					uid = cookie.getValue();
+				}
+			}
+		}
+
+		// 1. 게이트 매핑 테이블 템플릿 획득
+		Map<String, Object> mappingTableSearchMap = new HashMap<>();
+		mappingTableSearchMap.put("siteCd", siteCd);
+		mappingTableSearchMap.put("deviceCd", deviceCd);
+		mappingTableSearchMap.put("type", requestType);
+		mappingTableSearchMap.put("partnerid", partnerId);
+		List<Map<String, Object>> gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
+
+		//해당 partnerid에 예외로직이 없을경우
+		if(gateMappingTables.size() < 1){
+			mappingTableSearchMap.put("partnerid", "");
+			gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
+		}
+
+		// 에러 로그 Map
+		Map<String, Object> excptLogMap = new HashMap<>();
+
+		// 2. 매출코드 유효성 체크
+		Map<String, Object> partnerIdDetailMap = mysqlGateMapper.getPartnerIdDetail(partnerId);
+
+		// 매출코드가 DB에 없음
+		if (null == partnerIdDetailMap) {
+			// 매출코드가 정상이 아니어도 방문 카운트 Insert
+			String partnerConnSeq = this.insertPartnerConn(partnerId, siteCd, deviceCd, clientIp, userAgent, refererUrl, pcid, uid, urlParameter);
+
+			// todo: 예외처리.. 무엇을?
+
+			// 에러 Log Insert
+			excptLogMap.put("log_seq", partnerConnSeq);
+			excptLogMap.put("log_type","1");
+			int res = mysqlGateMapper.insertExcptLog(excptLogMap);
+
+			// response에 쿠키로 mnm 에 사이트별 기본 매출코드 심기
+			addPartnerCookie(response, siteCd, partnerId);
+
+			// 기본 홈 주소 return
+			// 매핑테이블에 Home 타입 조회
+			Map<String, Object> mappingTemplate = null;
+			for (Map<String, Object> partner : gateMappingTables) {
+				if (siteCd.equals(partner.getOrDefault("site_cd", "").toString())) {
+					// 동일 사이트
+					if (deviceCd.equals(partner.getOrDefault("device_cd", "").toString())) {
+						// 동일 디바이스
+						if (partner.getOrDefault("type", "").toString().toLowerCase().equals("home")) {
+							// 메인화면 타입
+							mappingTemplate = partner;
+							break;
+						}
+					}
+				}
+			}
+
+			redirectUrl = mappingTemplate.getOrDefault(urltemplateType, "").toString();
+
+			if (redirectUrl.contains("?")){
+				redirectUrl += "&_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+			}else{
+				redirectUrl += "?_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+			}
+
+		} else {
+			// 매출코드가 존재
+			// 네이버 매출코드 처리
+			boolean isChangedNaverPartnerid = this.naverPartnerWork(response, partnerId, siteCd, deviceCd, queryMap);
+
+			if (deviceCd.equals("001")) {
+				// 현재 접속 장비가 PC
+				// do nothing
+			} else {
+				// 현재 접속 장비가 MC
+				// 매출코드를 MC매출코드로 변경
+				if (0 < partnerIdDetailMap.getOrDefault("mobileid", "").toString().length()) {
+					if (false == isChangedNaverPartnerid) {
+						partnerId = partnerIdDetailMap.getOrDefault("mobileid", "").toString();
+					}
+				}
+				//모바일일 때
+				setCookie(response, siteCd, "mh_pc_ver", "N", 60 * 60 * 24 * 5, false, false);
+			}
+
+			// 방문 카운트 Insert
+			String partnerConnSeq = this.insertPartnerConn(partnerId, siteCd, deviceCd, clientIp, userAgent, refererUrl, pcid, uid, urlParameter);
+
+			// 매핑테이블에 타입 조회
+			Map<String, Object> mappingTemplate = null;
+			for (Map<String, Object> partner : gateMappingTables) {
+				if (siteCd.equals(partner.getOrDefault("site_cd", "").toString())) {
+					// 동일 사이트
+					if (deviceCd.equals(partner.getOrDefault("device_cd", "").toString())) {
+						// 동일 디바이스
+						if (requestType.toLowerCase().equals(partner.getOrDefault("type", "").toString().toLowerCase())) {
+							// 동일 타입
+							mappingTemplate = partner;
+							break;
+						}
+					}
+				}
+			}
+
+			// 해당 타입 템플릿 존재 확인
+			if (null == mappingTemplate) {
+				// 템플릿 없음
+
+				// todo: 예외처리.. 무엇을?
+
+				// 에러 Log Insert
+				excptLogMap.put("log_seq", partnerConnSeq);
+				excptLogMap.put("log_type","2");
+				int res = mysqlGateMapper.insertExcptLog(excptLogMap);
+
+				// response에 쿠키로 mnm 에 사이트별 매출코드 심기
+				addPartnerCookie(response, siteCd, partnerId);
+
+				// 기본 홈 주소 return
+				// 매핑테이블에 Home 타입 조회
+				for (Map<String, Object> partner : gateMappingTables) {
+					if (siteCd.equals(partner.getOrDefault("site_cd", "").toString())) {
+						// 동일 사이트
+						if (deviceCd.equals(partner.getOrDefault("device_cd", "").toString())) {
+							// 동일 디바이스
+							if (partner.getOrDefault("type", "").toString().toLowerCase().equals("home")) {
+								// 메인화면 타입
+								mappingTemplate = partner;
+								break;
+							}
+						}
+					}
+				}
+
+				redirectUrl = mappingTemplate.getOrDefault(urltemplateType, "").toString();
+
+				if (redirectUrl.contains("?")){
+					redirectUrl += "&_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+				}else{
+					redirectUrl += "?_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+				}
+
+				//네이버 프리미엄 로그 전환
+				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
+					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
+				}
+			} else {
+				// 템플릿 있음
+
+				// 리다이렉트 url 획득
+				redirectUrl = mappingTemplate.getOrDefault(urltemplateType, "").toString();
+
+
+				// 파라메터 1~5 존재 확인 후 to-be 테이블에서 replace하기
+				for (int index = 1; index < 6; index++) {
+					if (0 < mappingTemplate.getOrDefault(String.format("param%d", index), "").toString().length()) {
+						//String key = mappingTemplate.get(String.format("param%d", index)).toString();
+
+						String key = "";
+
+						// &para 단어 unicode 치환 이슈로 인해 p1~p5 방식으로 사용변경 ( 기존 사용유저 에러방지를 위해 param방식 살려둠 )
+						if(request.getQueryString().contains("param")){
+							key = String.format("param%d", index);
+						}else{
+							key = String.format("p%d", index);
+						}
+
+						String value = "";
+						if (null != queryMap) {
+							value = queryMap.getOrDefault(key, "").toString();
+						}
+
+						//차세대 오픈 시에는 Pcode를 prd_no로 변경하여 리다이렉트
+						if(urltemplateType.equals("url_template_tobe") &&
+								((requestType.equals("detail_prstcd") && (key.equals("param3") || key.equals("p3")))
+										|| requestType.equals("detail_pcode") && (key.equals("param1") || key.equals("p1"))))
+						{
+							List<Map<String, Object>> prdNoInfo = postgreGateMapper.getPrdInfoByPCode(value.toUpperCase(), siteCd);
+							if(prdNoInfo != null && prdNoInfo.size() > 0) {
+								value = prdNoInfo.get(0).getOrDefault("prd_no", value).toString();
+							}
+						}
+
+						redirectUrl = redirectUrl.replace(String.format("{param%d}", index), value);
+					}
+				}
+
+				// response에 쿠키로 mnm 에 매출코드 심기
+				addPartnerCookie(response, siteCd, partnerId);
+
+				// redirect URL 뒤쪽에 방문 카운트 insert 한 레코드의 SEQ를 붙인다
+				if (redirectUrl.contains("?")){
+					redirectUrl += "&_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+				}else{
+					redirectUrl += "?_n_m2=" + partnerId + "&gSeq=" + partnerConnSeq;
+				}
+
+				if(urltemplateType.equals("url_template_tobe"))
+				{
+					redirectUrl += "&partnerid=" + partnerId;
+				}
+
+				if ((partnerId.equals("h_naver_m") || partnerId.equals("b_naverdb")  || -1 < partnerId.indexOf("_naver_sbsa_m")) && null != queryMap.get("napm")) {
+					redirectUrl += "&NaPm=" + queryMap.getOrDefault("napm", "").toString();
+				}
+
+			}
+		}
+
+		// 디바이스가 모바일이면 쿠키 삽입 => 201120_하프PC 공통게이트에도 존재하는 쿠키 따라서, 공통게이트 페이지 인ㅇ비시 pCheck 쿠키 삽입
+		this.setCookie(response, siteCd, "pCheck", "Y", null, false, false);
+
+		return redirectUrl;
+	}
+
+	@Override
 	public String getDeviceCd(HttpServletRequest request) {
 		String userAgent = request.getHeader("User-Agent").toUpperCase();
 

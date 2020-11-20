@@ -41,6 +41,7 @@ public interface GateService {
 	public List<Map<String, Object>> getGateMappingTables();
 
 	public String getGateRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession) throws IOException;
+	public String getNaverGateRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession) throws IOException;
 
 	public String getDeviceCd(HttpServletRequest request);
 	public String getSiteCd(HttpServletRequest request);
