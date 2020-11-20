@@ -57,4 +57,33 @@ public class GateController {
 			}
 		}
 	}
+
+	@RequestMapping(value = "/naver", method = RequestMethod.GET)
+	public void getNaverGatePage(Model model, final HttpSession session, HttpServletResponse response, HttpServletRequest request) throws IOException {
+
+		String redirectUrl = "";
+
+		// redirect url 획득하기
+		redirectUrl = gateService.getNaverGateRedirectUrl(request, response, session);
+
+		if (null != redirectUrl && 0 < redirectUrl.length()) {
+
+			redirectUrl = redirectUrl.replace("http:", "");
+			redirectUrl = redirectUrl.replace("https:", "");
+
+			// redirect url정상시 해당 url 이동
+
+			response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+			response.setHeader("Location", redirectUrl);
+		} else {
+			// 에러.. 기존 매핑 url(디폴트 URL)로 이동
+			String siteCd = gateService.getSiteCd(request);
+			String deviceCd = gateService.getDeviceCd(request);
+			if (siteCd.equals(GateService.SiteDefine.Halfclub.getSiteCd())) {
+				response.setHeader("Location", deviceCd.equals("001") ? GateService.SiteDefine.Halfclub.getSiteCookieDomain() : GateService.SiteDefine.Halfclub.getSiteDefaultUrlMO());
+			} else {
+				response.setHeader("Location", deviceCd.equals("001") ? GateService.SiteDefine.Boribori.getSiteCookieDomain() : GateService.SiteDefine.Boribori.getSiteDefaultUrlMO());
+			}
+		}
+	}
 }
