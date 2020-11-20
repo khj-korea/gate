@@ -778,7 +778,8 @@ public class GateServiceImpl implements GateService {
 					"n_query",
 					"n_ad_group",
 					"n_mall_pid",
-					"n_campaign_type"
+					"n_campaign_type",
+					"nv_ad"
 			);
 
 			for (String nvKey : chkNvKeys) {
