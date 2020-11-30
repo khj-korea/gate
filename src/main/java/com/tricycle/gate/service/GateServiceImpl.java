@@ -734,12 +734,12 @@ public class GateServiceImpl implements GateService {
 		final Cookie cookie = new Cookie("mnm", this.partnerId);
 		cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
 		cookie.setPath("/");
-		cookie.setMaxAge(60 * 60 * 24 * 365); // 60초 * 60분 * 24시 * 365일
+		cookie.setMaxAge(60 * 60 * 6); // 60초 * 60분 * 6시간
 		cookie.setSecure(false);
 		cookie.setHttpOnly(false);
 		response.addCookie(cookie);
 
-		setCookie(response, siteCd, "NFG", "Y", 60 * 60 * 24 * 365, false, false);
+		setCookie(response, siteCd, "NFG", "Y", 60 * 60 * 6, false, false);
 	}
 
 	@Override
