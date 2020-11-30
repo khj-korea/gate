@@ -124,10 +124,10 @@ public class GateServiceImpl implements GateService {
 		}
 
 		//to-be 확인 여부
-		String reqTobe = "";
+		String reqNfg = "";
 		if (null != queryMap) {
-			reqTobe = queryMap.getOrDefault("tobe", "").toString();
-			urltemplateType = reqTobe.equals("y") ? "url_template_tobe" : "url_template_asis";
+			reqNfg = queryMap.getOrDefault("isnfg", "").toString();
+			urltemplateType = reqNfg.toLowerCase().equals("y") ? "url_template_tobe" : "url_template_asis";
 		}
 
 		// 접속 요청한 모바일PC 여부 확인
@@ -431,10 +431,10 @@ public class GateServiceImpl implements GateService {
 		}
 
 		//to-be 확인 여부
-		String reqTobe = "";
+		String reqNfg = "";
 		if (null != queryMap) {
-			reqTobe = queryMap.getOrDefault("tobe", "").toString();
-			urltemplateType = reqTobe.equals("y") ? "url_template_tobe" : "url_template_asis";
+			reqNfg = queryMap.getOrDefault("isnfg", "").toString();
+			urltemplateType = reqNfg.toLowerCase().equals("y") ? "url_template_tobe" : "url_template_asis";
 		}
 
 		// 1. 게이트 매핑 테이블 템플릿 획득
