@@ -651,7 +651,7 @@ public class GateServiceImpl implements GateService {
 	public String getDeviceCd(HttpServletRequest request) {
 		String userAgent = request.getHeader("User-Agent").toUpperCase();
 
-		if (userAgent.indexOf("MOBILE") > -1) {
+		if (userAgent.indexOf("MOBILE") > -1 || userAgent.indexOf("TRICYCLE") > -1) {
 			return "002";
 		} else {
 			return "001";
