@@ -147,8 +147,8 @@ public class GateServiceImpl implements GateService {
 		//해당 partnerid에 예외로직이 없을경우
 		if(gateMappingTables.size() < 1){
 			mappingTableSearchMap.put("partnerid", "");
-			//기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
-			if(deviceCd.equals("001") && ((requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
+			//하프 기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
+			if(siteCd.equals("1") && deviceCd.equals("001") && ((requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
 				|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString())))) {
 				requestType = "best";
 				mappingTableSearchMap.put("type", requestType);
