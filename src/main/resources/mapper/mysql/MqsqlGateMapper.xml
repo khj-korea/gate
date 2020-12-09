@@ -61,10 +61,12 @@
             log_seq
             ,create_dt
             ,log_type
+            ,partner_id
         ) VALUES (
-           CAST(#{log_seq} AS UNSIGNED)
-           ,now()
-           ,#{log_type}
+            CAST(#{log_seq} AS UNSIGNED)
+            ,now()
+            ,#{log_type}
+            ,#{partner_id}
         )
     </insert>
 </mapper>

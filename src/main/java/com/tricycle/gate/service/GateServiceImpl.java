@@ -172,6 +172,7 @@ public class GateServiceImpl implements GateService {
 			// 에러 Log Insert
 			excptLogMap.put("log_seq", partnerConnSeq);
 			excptLogMap.put("log_type","1");
+			excptLogMap.put("partner_id", partnerId);
 			int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 			// 기본 매출코드 셋팅 후 홈 랜딩
 
@@ -259,6 +260,7 @@ public class GateServiceImpl implements GateService {
 				// 에러 Log Insert
 				excptLogMap.put("log_seq", partnerConnSeq);
 				excptLogMap.put("log_type","2");
+				excptLogMap.put("partner_id", partnerId);
 				int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 				// 기본 매출코드 셋팅 후 홈 랜딩
 
@@ -478,6 +480,7 @@ public class GateServiceImpl implements GateService {
 			// 에러 Log Insert
 			excptLogMap.put("log_seq", partnerConnSeq);
 			excptLogMap.put("log_type","1");
+			excptLogMap.put("partner_id", partnerId);
 			int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 
 			// response에 쿠키로 mnm 에 사이트별 기본 매출코드 심기
@@ -556,6 +559,7 @@ public class GateServiceImpl implements GateService {
 				// 에러 Log Insert
 				excptLogMap.put("log_seq", partnerConnSeq);
 				excptLogMap.put("log_type","2");
+				excptLogMap.put("partner_id", partnerId);
 				int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 
 				// response에 쿠키로 mnm 에 사이트별 매출코드 심기
@@ -750,6 +754,7 @@ public class GateServiceImpl implements GateService {
 		cookie.setHttpOnly(false);
 		response.addCookie(cookie);
 
+		setCookie(response, siteCd, "_partid_", this.partnerId, 60 * 60 * 6, false, false);
 		setCookie(response, siteCd, "NFG", "Y", 60 * 60 * 6, false, false);
 	}
 
