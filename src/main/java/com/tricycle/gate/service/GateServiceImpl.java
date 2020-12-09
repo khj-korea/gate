@@ -177,7 +177,7 @@ public class GateServiceImpl implements GateService {
 			// 기본 매출코드 셋팅 후 홈 랜딩
 
 			// response에 쿠키로 mnm 에 사이트별 기본 매출코드 심기
-			addPartnerCookie(response, siteCd, partnerId);
+			addPartnerCookie(response, siteCd, partnerId, 0);
 
 			// 기본 홈 주소 return
 			// 매핑테이블에 Home 타입 조회
@@ -265,7 +265,7 @@ public class GateServiceImpl implements GateService {
 				// 기본 매출코드 셋팅 후 홈 랜딩
 
 				// response에 쿠키로 mnm 에 사이트별 매출코드 심기
-				addPartnerCookie(response, siteCd, partnerId);
+				addPartnerCookie(response, siteCd, partnerId, Integer.parseInt(partnerIdDetailMap.getOrDefault("cookie_time","0").toString()));
 
 				// 기본 홈 주소 return
 				// 매핑테이블에 Home 타입 조회
@@ -333,7 +333,7 @@ public class GateServiceImpl implements GateService {
 				}
 
 				// response에 쿠키로 mnm 에 매출코드 심기
-				addPartnerCookie(response, siteCd, partnerId);
+				addPartnerCookie(response, siteCd, partnerId, Integer.parseInt(partnerIdDetailMap.getOrDefault("cookie_time","0").toString()));
 
 				// redirect URL 뒤쪽에 방문 카운트 insert 한 레코드의 SEQ를 붙인다
 				if (redirectUrl.contains("?")){
@@ -484,7 +484,7 @@ public class GateServiceImpl implements GateService {
 			int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 
 			// response에 쿠키로 mnm 에 사이트별 기본 매출코드 심기
-			addPartnerCookie(response, siteCd, partnerId);
+			addPartnerCookie(response, siteCd, partnerId, 0);
 
 			// 기본 홈 주소 return
 			// 매핑테이블에 Home 타입 조회
@@ -563,7 +563,7 @@ public class GateServiceImpl implements GateService {
 				int res = mysqlGateMapper.insertExcptLog(excptLogMap);
 
 				// response에 쿠키로 mnm 에 사이트별 매출코드 심기
-				addPartnerCookie(response, siteCd, partnerId);
+				addPartnerCookie(response, siteCd, partnerId, Integer.parseInt(partnerIdDetailMap.getOrDefault("cookie_time","0").toString()));
 
 				// 기본 홈 주소 return
 				// 매핑테이블에 Home 타입 조회
@@ -635,7 +635,7 @@ public class GateServiceImpl implements GateService {
 				}
 
 				// response에 쿠키로 mnm 에 매출코드 심기
-				addPartnerCookie(response, siteCd, partnerId);
+				addPartnerCookie(response, siteCd, partnerId, Integer.parseInt(partnerIdDetailMap.getOrDefault("cookie_time","0").toString()));
 
 				// redirect URL 뒤쪽에 방문 카운트 insert 한 레코드의 SEQ를 붙인다
 				if (redirectUrl.contains("?")){
@@ -744,18 +744,24 @@ public class GateServiceImpl implements GateService {
 	}
 
 	@Override
-	public void addPartnerCookie(HttpServletResponse response, String siteCd, String partnerId) {
+	public void addPartnerCookie(HttpServletResponse response, String siteCd, String partnerId, Integer cookieTime) {
+		if(cookieTime == 0) {
+			cookieTime = 60 * 60 * 6;// 60초 * 60분 * 6시간
+		}
+		else {
+			cookieTime = 60 * cookieTime;
+		}
 
 		final Cookie cookie = new Cookie("mnm", this.partnerId);
 		cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
 		cookie.setPath("/");
-		cookie.setMaxAge(60 * 60 * 6); // 60초 * 60분 * 6시간
+		cookie.setMaxAge(cookieTime); // 60초 * 60분 * 6시간
 		cookie.setSecure(false);
 		cookie.setHttpOnly(false);
 		response.addCookie(cookie);
 
-		setCookie(response, siteCd, "_partid_", this.partnerId, 60 * 60 * 6, false, false);
-		setCookie(response, siteCd, "NFG", "Y", 60 * 60 * 6, false, false);
+		setCookie(response, siteCd, "_partid_", this.partnerId, cookieTime, false, false);
+		setCookie(response, siteCd, "NFG", "Y", cookieTime, false, false);
 	}
 
 	@Override
@@ -796,6 +802,7 @@ public class GateServiceImpl implements GateService {
 		return partnerConnSeq;
 	}
 
+	@Override
 	public boolean naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap) {
 		boolean isChangedNaverPartnerid = false;
 		if (-1 < this.partnerId.indexOf("naverdb") || -1 < this.partnerId.indexOf("_naver_m")) {
@@ -869,6 +876,7 @@ public class GateServiceImpl implements GateService {
 		return isChangedNaverPartnerid;
 	}
 
+	@Override
 	public boolean numCheck(String category) {
 		boolean categoryNum = false;
 

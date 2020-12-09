@@ -48,8 +48,10 @@ public interface GateService {
 	public String getRequestType(HttpServletRequest request, String siteCd);
 	public Map<String, Object> splitQuery(URL url) throws UnsupportedEncodingException;
 	public Map<String, Object> splitQuery(String query) throws UnsupportedEncodingException;
-	public void addPartnerCookie(HttpServletResponse response, String siteCd, String partnerId);
+	public void addPartnerCookie(HttpServletResponse response, String siteCd, String partnerId, Integer cookieTime);
 	public void setCookie(HttpServletResponse response, String siteCd, String cookieName, String cookieValue, Integer expiry, boolean Secure, boolean HttpOnly);
 
 	public String insertPartnerConn(String partnerId, String siteCd, String deviceCd, String clientIp, String userAgent, String refererUrl, String pcid, String uid, String urlParameter);
+	public boolean naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap);
+	public boolean numCheck(String category);
 }
