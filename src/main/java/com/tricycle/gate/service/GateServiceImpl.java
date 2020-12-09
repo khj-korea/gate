@@ -147,6 +147,12 @@ public class GateServiceImpl implements GateService {
 		//해당 partnerid에 예외로직이 없을경우
 		if(gateMappingTables.size() < 1){
 			mappingTableSearchMap.put("partnerid", "");
+			//기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
+			if(deviceCd.equals("001") && ((requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
+				|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString())))) {
+				requestType = "best";
+				mappingTableSearchMap.put("type", requestType);
+			}
 			gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
 		}
 
@@ -234,7 +240,6 @@ public class GateServiceImpl implements GateService {
 
 					if (deviceCd.equals(partner.getOrDefault("device_cd", "").toString())) {
 						// 동일 디바이스
-
 						if (requestType.toLowerCase().equals(partner.getOrDefault("type", "").toString().toLowerCase())) {
 							// 동일 타입
 
@@ -448,6 +453,12 @@ public class GateServiceImpl implements GateService {
 		//해당 partnerid에 예외로직이 없을경우
 		if(gateMappingTables.size() < 1){
 			mappingTableSearchMap.put("partnerid", "");
+			//기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
+			if(deviceCd.equals("001") && (requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
+					|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString()))) {
+				requestType = "best";
+				mappingTableSearchMap.put("type", requestType);
+			}
 			gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
 		}
 
@@ -851,5 +862,13 @@ public class GateServiceImpl implements GateService {
 		}
 
 		return isChangedNaverPartnerid;
+	}
+
+	public boolean numCheck(String category) {
+		boolean categoryNum = false;
+
+		categoryNum = category.replaceAll("[0-9]+","").equals("") ? true : false;
+
+		return categoryNum;
 	}
 }
