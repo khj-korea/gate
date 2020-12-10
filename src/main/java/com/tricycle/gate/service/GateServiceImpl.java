@@ -878,10 +878,11 @@ public class GateServiceImpl implements GateService {
 
 	@Override
 	public boolean numCheck(String category) {
-		boolean categoryNum = false;
-
-		categoryNum = category.replaceAll("[0-9]+","").equals("") ? true : false;
-
-		return categoryNum;
+		try {
+			Double.parseDouble(category);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
 	}
 }
