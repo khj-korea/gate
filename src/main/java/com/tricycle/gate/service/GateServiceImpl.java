@@ -148,8 +148,9 @@ public class GateServiceImpl implements GateService {
 		if(gateMappingTables.size() < 1){
 			mappingTableSearchMap.put("partnerid", "");
 			//하프 기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
-			if(siteCd.equals("1") && deviceCd.equals("001") && ((requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
-				|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString())))) {
+			if(urltemplateType.equals("url_template_asis") && siteCd.equals("1") && deviceCd.equals("001")
+					&& ((requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
+					|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString())))) {
 				requestType = "best";
 				mappingTableSearchMap.put("type", requestType);
 			}
@@ -456,7 +457,8 @@ public class GateServiceImpl implements GateService {
 		if(gateMappingTables.size() < 1){
 			mappingTableSearchMap.put("partnerid", "");
 			//하프 기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
-			if(siteCd.equals("1") && deviceCd.equals("001") && (requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
+			if(urltemplateType.equals("url_template_asis") && siteCd.equals("1") && deviceCd.equals("001")
+					&& (requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
 					|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString()))) {
 				requestType = "best";
 				mappingTableSearchMap.put("type", requestType);
