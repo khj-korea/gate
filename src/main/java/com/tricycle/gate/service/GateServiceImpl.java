@@ -42,7 +42,8 @@ public class GateServiceImpl implements GateService {
 			"returnurl",
 			"isnfg",
 			"_n_m2",
-			"gseq"
+			"gseq",
+			"napm"
 	};
 
 	@Override
@@ -164,13 +165,18 @@ public class GateServiceImpl implements GateService {
 		//해당 partnerid에 예외로직이 없을경우
 		if(gateMappingTables.size() < 1){
 			mappingTableSearchMap.put("partnerid", "");
-			//하프 기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
-			if(urltemplateType.equals("url_template_asis") && siteCd.equals("1") && deviceCd.equals("001")
-					&& ((requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
-					|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString())))) {
-				requestType = "best";
-				mappingTableSearchMap.put("type", requestType);
+
+			//asis type 기기 랜딩 체크
+			if(urltemplateType.equals("url_template_asis") && (requestType.toLowerCase().equals("category")
+					|| (siteCd.equals("1") && deviceCd.equals("001") && (requestType.toLowerCase().equals("best_highlight") || requestType.toLowerCase().equals("best_category")))))
+			{
+				String typechk = typeChkAsis(siteCd, deviceCd, requestType, queryMap);
+				if(!typechk.equals(requestType)){
+					requestType = typechk;
+					mappingTableSearchMap.put("type", requestType);
+				}
 			}
+
 			gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
 		}
 
@@ -476,13 +482,18 @@ public class GateServiceImpl implements GateService {
 		//해당 partnerid에 예외로직이 없을경우
 		if(gateMappingTables.size() < 1){
 			mappingTableSearchMap.put("partnerid", "");
-			//하프 기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
-			if(urltemplateType.equals("url_template_asis") && siteCd.equals("1") && deviceCd.equals("001")
-					&& (requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
-					|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString()))) {
-				requestType = "best";
-				mappingTableSearchMap.put("type", requestType);
+
+			//asis type 기기 랜딩 체크
+			if(urltemplateType.equals("url_template_asis") && (requestType.toLowerCase().equals("category")
+					|| (siteCd.equals("1") && deviceCd.equals("001") && (requestType.toLowerCase().equals("best_highlight") || requestType.toLowerCase().equals("best_category")))))
+			{
+				String typechk = typeChkAsis(siteCd, deviceCd, requestType, queryMap);
+				if(!typechk.equals(requestType)){
+					requestType = typechk;
+					mappingTableSearchMap.put("type", requestType);
+				}
 			}
+
 			gateMappingTables = mysqlGateMapper.getGateMappingTables(mappingTableSearchMap);
 		}
 
@@ -926,5 +937,40 @@ public class GateServiceImpl implements GateService {
 		}
 
 		return redirectUrl;
+	}
+
+	@Override
+	public String typeChkAsis(String siteCd, String deviceCd, String requestType, Map<String, Object> queryMap) {
+		// asis type=best_category&best_highlight
+		//하프 기기 = pc / 세팅은 모바일 카테고리 / pc로 전환시 에러
+		if(siteCd.equals("1") && deviceCd.equals("001")
+				&& ((requestType.toLowerCase().equals("best_highlight") && numCheck(queryMap.getOrDefault("p2", "").toString()))
+				|| (requestType.toLowerCase().equals("best_category") && numCheck(queryMap.getOrDefault("p1", "").toString())))) {
+			requestType = "best";
+		}
+		//asis type=category
+		else if(requestType.toLowerCase().equals("category")){
+			//하프일때,
+			if(siteCd.equals("1")) {
+				//기기 pc && 숫자 일때 || 기기 mo && 문자 일때
+
+				if((deviceCd.equals("001") && numCheck(queryMap.getOrDefault("p1", "").toString()))
+						|| (deviceCd.equals("002") && !numCheck(queryMap.getOrDefault("p1", "").toString()))){
+					requestType = "home";
+				}
+			}
+			//보리일때,
+			else {
+				//기기 pc && 모바일 카테고리 || 기기 mo && 모바일카테고리 아닐 때
+				if(deviceCd.equals("001") && queryMap.getOrDefault("p1", "").toString().contains("_")
+						|| deviceCd.equals("002") && (!queryMap.getOrDefault("p1", "").toString().contains("_") && !(queryMap.getOrDefault("p1", "").toString().toLowerCase().contains("global")))) {
+					requestType = "home";
+				}
+				else if(deviceCd.equals("002") && ((queryMap.getOrDefault("p1", "").toString().contains("_")) || queryMap.getOrDefault("p1", "").toString().toLowerCase().contains("global"))) {
+					queryMap.put("p1",  queryMap.getOrDefault("p1", "").toString().replaceAll("_","/"));
+				}
+			}
+		}
+		return requestType;
 	}
 }

@@ -55,4 +55,5 @@ public interface GateService {
 	public boolean naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap);
 	public boolean numCheck(String category);
 	public String addRedirectUrl(String redirectUrl, Map<String, Object> queryMap);
+	public String typeChkAsis(String siteCd, String deviceCd, String requestType, Map<String, Object> queryMap);
 }
