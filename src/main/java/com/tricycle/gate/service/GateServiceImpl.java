@@ -28,6 +28,23 @@ public class GateServiceImpl implements GateService {
 
 	private String partnerId;
 
+	private String[] chkParam = {
+			"site_cd",
+			"device_cd",
+			"type",
+			"p1",
+			"p2",
+			"p3",
+			"p4",
+			"p5",
+			"adseq",
+			"partnerid",
+			"returnurl",
+			"isnfg",
+			"_n_m2",
+			"gseq"
+	};
+
 	@Override
 	public List<Map<String, Object>> getGateMappingTables() {
 		return null;
@@ -355,6 +372,9 @@ public class GateServiceImpl implements GateService {
 
 		}
 
+		//키워드검색광고 등 parameter 추가로 들어오는 것들에 대해 add 해줌
+		redirectUrl = addRedirectUrl(redirectUrl, queryMap);
+		
 		return redirectUrl;
 	}
 
@@ -661,6 +681,9 @@ public class GateServiceImpl implements GateService {
 		// 디바이스가 모바일이면 쿠키 삽입 => 201120_하프PC 공통게이트에도 존재하는 쿠키 따라서, 공통게이트 페이지 인입시 pCheck 쿠키 삽입
 		this.setCookie(response, siteCd, "pCheck", "Y", null, false, false);
 
+		//키워드검색광고 등 parameter 추가로 들어오는 것들에 대해 add 해줌
+		redirectUrl = addRedirectUrl(redirectUrl, queryMap);
+
 		return redirectUrl;
 	}
 
@@ -737,7 +760,12 @@ public class GateServiceImpl implements GateService {
 				for (String pair : pairs) {
 					int idx = pair.indexOf("=");
 					if (-1 < idx) {
-						query_pairs.put(URLDecoder.decode(pair.substring(0, idx).toLowerCase(), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+						if((Arrays.asList(chkParam).contains(pair.substring(0, idx).toLowerCase()))) {
+							query_pairs.put(URLDecoder.decode(pair.substring(0, idx).toLowerCase(), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+						}
+						else {
+							query_pairs.put(URLDecoder.decode(pair.substring(0, idx).toLowerCase(), "UTF-8"), pair.substring(idx + 1));
+						}
 					}
 				}
 			}
@@ -886,5 +914,17 @@ public class GateServiceImpl implements GateService {
 		} catch(NumberFormatException e) {
 			return false;
 		}
+	}
+
+	@Override
+	public String addRedirectUrl(String redirectUrl, Map<String, Object> queryMap) {
+
+		for(Map.Entry<String,Object> entry : queryMap.entrySet()){
+			if(!Arrays.asList(chkParam).contains(entry.getKey())) {
+				redirectUrl = redirectUrl + "&" + entry.getKey() + "=" + entry.getValue().toString();
+			}
+		}
+
+		return redirectUrl;
 	}
 }

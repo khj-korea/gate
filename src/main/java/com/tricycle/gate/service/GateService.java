@@ -54,4 +54,5 @@ public interface GateService {
 	public String insertPartnerConn(String partnerId, String siteCd, String deviceCd, String clientIp, String userAgent, String refererUrl, String pcid, String uid, String urlParameter);
 	public boolean naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap);
 	public boolean numCheck(String category);
+	public String addRedirectUrl(String redirectUrl, Map<String, Object> queryMap);
 }
