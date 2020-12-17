@@ -28,23 +28,7 @@ public class GateServiceImpl implements GateService {
 
 	private String partnerId;
 
-	private String[] chkParam = {
-			"site_cd",
-			"device_cd",
-			"type",
-			"p1",
-			"p2",
-			"p3",
-			"p4",
-			"p5",
-			"adseq",
-			"partnerid",
-			"returnurl",
-			"isnfg",
-			"_n_m2",
-			"gseq",
-			"napm"
-	};
+
 
 	@Override
 	public List<Map<String, Object>> getGateMappingTables() {
@@ -764,6 +748,23 @@ public class GateServiceImpl implements GateService {
 	}
 	@Override
 	public Map<String, Object> splitQuery(String query) throws UnsupportedEncodingException {
+		String[] chkParam = {
+				"site_cd",
+				"device_cd",
+				"type",
+				"p1",
+				"p2",
+				"p3",
+				"p4",
+				"p5",
+				"adseq",
+				"partnerid",
+				"returnurl",
+				"isnfg",
+				"_n_m2",
+				"gseq"
+		};
+
 		Map<String, Object> query_pairs = new LinkedHashMap<>();
 		if (null != query) {
 			String[] pairs = query.split("&");
@@ -930,8 +931,14 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public String addRedirectUrl(String redirectUrl, Map<String, Object> queryMap) {
 
+		String[] addParam = {
+				"cccp", //크로스미디어
+				"cckw", //크로스미디어
+				"gclid" //ga
+		};
+
 		for(Map.Entry<String,Object> entry : queryMap.entrySet()){
-			if(!Arrays.asList(chkParam).contains(entry.getKey())) {
+			if(Arrays.asList(addParam).contains(entry.getKey())) {
 				redirectUrl = redirectUrl + "&" + entry.getKey() + "=" + entry.getValue().toString();
 			}
 		}
