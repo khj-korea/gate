@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
 
 @Service
@@ -80,7 +81,8 @@ public class GateServiceImpl implements GateService {
 		// PartnerId 획득
 		//String partnerId = "";
 		if (null != queryMap) {
-			partnerId = queryMap.getOrDefault("partnerid", "").toString();
+			String siteId = queryMap.getOrDefault("site", "").toString(); //IM요청-겟앤쇼 partnerid param 사용X
+			partnerId = siteId.equals("") ? queryMap.getOrDefault("partnerid", "").toString() : siteId;
 		}
 		if (0 == partnerId.length()) {
 			partnerId = siteCd.equals("1") ? "halfclub" : "b_boribori";
@@ -152,7 +154,8 @@ public class GateServiceImpl implements GateService {
 
 			//asis type 기기 랜딩 체크
 			if(urltemplateType.equals("url_template_asis") && (requestType.toLowerCase().equals("category")
-					|| (siteCd.equals("1") && deviceCd.equals("001") && (requestType.toLowerCase().equals("best_highlight") || requestType.toLowerCase().equals("best_category")))))
+					|| (siteCd.equals("1") && deviceCd.equals("001") && (requestType.toLowerCase().equals("best_highlight") || requestType.toLowerCase().equals("best_category")))
+					|| (requestType.toLowerCase().equals("search"))))
 			{
 				String typechk = typeChkAsis(siteCd, deviceCd, requestType, queryMap);
 				if(!typechk.equals(requestType)){
@@ -469,7 +472,8 @@ public class GateServiceImpl implements GateService {
 
 			//asis type 기기 랜딩 체크
 			if(urltemplateType.equals("url_template_asis") && (requestType.toLowerCase().equals("category")
-					|| (siteCd.equals("1") && deviceCd.equals("001") && (requestType.toLowerCase().equals("best_highlight") || requestType.toLowerCase().equals("best_category")))))
+					|| (siteCd.equals("1") && deviceCd.equals("001") && (requestType.toLowerCase().equals("best_highlight") || requestType.toLowerCase().equals("best_category")))
+					|| (requestType.toLowerCase().equals("search"))))
 			{
 				String typechk = typeChkAsis(siteCd, deviceCd, requestType, queryMap);
 				if(!typechk.equals(requestType)){
@@ -759,6 +763,7 @@ public class GateServiceImpl implements GateService {
 				"p5",
 				"adseq",
 				"partnerid",
+				"site",
 				"returnurl",
 				"isnfg",
 				"_n_m2",
@@ -956,7 +961,7 @@ public class GateServiceImpl implements GateService {
 			requestType = "best";
 		}
 		//asis type=category
-		else if(requestType.toLowerCase().equals("category")){
+		else if(requestType.toLowerCase().equals("category")) {
 			//하프일때,
 			if(siteCd.equals("1")) {
 				//기기 pc && 숫자 일때 || 기기 mo && 문자 일때
@@ -977,6 +982,9 @@ public class GateServiceImpl implements GateService {
 					queryMap.put("p1",  queryMap.getOrDefault("p1", "").toString().replaceAll("_","/"));
 				}
 			}
+		}
+		else if(requestType.toLowerCase().equals("search")) {
+			queryMap.put("p1",  URLEncoder.encode(queryMap.getOrDefault("p1", "").toString()));
 		}
 		return requestType;
 	}
