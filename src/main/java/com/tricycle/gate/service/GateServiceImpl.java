@@ -217,6 +217,12 @@ public class GateServiceImpl implements GateService {
 
 		} else {
 			// 매출코드가 존재
+			// 아이라이크 param 확인
+			if(!(queryMap.getOrDefault("valuefromclick", "").toString().equals("")))
+			{
+				Integer time = Integer.parseInt(partnerIdDetailMap.getOrDefault("cookie_time","0").toString()) * 60;
+				setCookie(response, siteCd, "c_ValueFromClick", queryMap.getOrDefault("valuefromclick", "").toString(), time, false, false);
+			}
 
 			if (deviceCd.equals("001")) {
 				// 현재 접속 장비가 PC
