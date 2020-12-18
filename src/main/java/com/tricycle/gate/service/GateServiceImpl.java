@@ -984,7 +984,11 @@ public class GateServiceImpl implements GateService {
 			}
 		}
 		else if(requestType.toLowerCase().equals("search")) {
-			queryMap.put("p1",  URLEncoder.encode(queryMap.getOrDefault("p1", "").toString()));
+			try {
+				queryMap.put("p1",  URLEncoder.encode(queryMap.getOrDefault("p1", "").toString(),"UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+
+			}
 		}
 		return requestType;
 	}
