@@ -42,6 +42,7 @@ public interface GateService {
 
 	public String getGateRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession) throws IOException;
 	public String getNaverGateRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession) throws IOException;
+	public String getLpGateRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession) throws IOException;
 
 	public String getDeviceCd(HttpServletRequest request);
 	public String getSiteCd(HttpServletRequest request);
@@ -56,4 +57,7 @@ public interface GateService {
 	public boolean numCheck(String category);
 	public String addRedirectUrl(String redirectUrl, Map<String, Object> queryMap);
 	public String typeChkAsis(String siteCd, String deviceCd, String requestType, Map<String, Object> queryMap);
+	public String  addLpParam(Map<String, Object> queryMap, String device);
+	public String appSchemeLP(String siteCd, String url);
+	public String deepLinkLP(String siteCd, Map<String, Object> queryMap, String lpinfo, String redirectUrl);
 }
