@@ -27,10 +27,6 @@ public class GateServiceImpl implements GateService {
 	@Autowired
 	private PostgreGateMapper postgreGateMapper;
 
-	private String partnerId;
-
-
-
 	@Override
 	public List<Map<String, Object>> getGateMappingTables() {
 		return null;
@@ -39,7 +35,7 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public String getGateRedirectUrl(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
 
-
+		String partnerId = "";
 		String redirectUrl = "";
 
 		// 접속 URL 도메인 확인 후 사이트 확인
@@ -380,6 +376,7 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public String getNaverGateRedirectUrl(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
 
+		String partnerId = "";
 		String redirectUrl = "";
 
 		// 접속 URL 도메인 확인 후 사이트 확인
@@ -695,7 +692,7 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public String getLpGateRedirectUrl(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
 
-
+		String partnerId = "";
 		String redirectUrl = "";
 
 		// 접속 URL 도메인 확인 후 사이트 확인
@@ -1129,7 +1126,7 @@ public class GateServiceImpl implements GateService {
 			cookieTime = 60 * cookieTime;
 		}
 
-		final Cookie cookie = new Cookie("mnm", this.partnerId);
+		final Cookie cookie = new Cookie("mnm", partnerId);
 		cookie.setDomain(siteCd.equals(SiteDefine.Halfclub.getSiteCd()) ? SiteDefine.Halfclub.getSiteCookieDomain() : SiteDefine.Boribori.getSiteCookieDomain());
 		cookie.setPath("/");
 		cookie.setMaxAge(cookieTime); // 60초 * 60분 * 6시간
@@ -1137,7 +1134,7 @@ public class GateServiceImpl implements GateService {
 		cookie.setHttpOnly(false);
 		response.addCookie(cookie);
 
-		setCookie(response, siteCd, "_partid_", this.partnerId, cookieTime, false, false);
+		setCookie(response, siteCd, "_partid_", partnerId, cookieTime, false, false);
 		setCookie(response, siteCd, "NFG", "Y", cookieTime, false, false);
 	}
 
@@ -1161,7 +1158,7 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public String insertPartnerConn(String partnerId, String siteCd, String deviceCd, String clientIp, String userAgent, String refererUrl, String pcid, String uid, String urlParameter) {
 		Map<String, Object> partnerConnCountMap = new HashMap<>();
-		partnerConnCountMap.put("partnerId", this.partnerId);
+		partnerConnCountMap.put("partnerId", partnerId);
 		partnerConnCountMap.put("siteCd", siteCd);
 		partnerConnCountMap.put("deviceCd", deviceCd);
 		partnerConnCountMap.put("clientIp", clientIp);
@@ -1182,7 +1179,7 @@ public class GateServiceImpl implements GateService {
 	@Override
 	public boolean naverPartnerWork(HttpServletResponse response, String partnerId, String siteCd, String deviceCd, Map<String, Object> queryMap) {
 		boolean isChangedNaverPartnerid = false;
-		if (-1 < this.partnerId.indexOf("naverdb") || -1 < this.partnerId.indexOf("_naver_m")) {
+		if (-1 < partnerId.indexOf("naverdb") || -1 < partnerId.indexOf("_naver_m")) {
 			Boolean isNaverImported = false;
 			List<String> chkNvKeys = Arrays.asList(
 					"n_ad",
@@ -1213,9 +1210,9 @@ public class GateServiceImpl implements GateService {
 						break;
 				}
 				if (deviceCd.equals("001")) {
-					this.partnerId = sitePrefix + "naver_sbsa_w";
+					partnerId = sitePrefix + "naver_sbsa_w";
 				} else {
-					this.partnerId = sitePrefix + "naver_sbsa_m";
+					partnerId = sitePrefix + "naver_sbsa_m";
 				}
 				isChangedNaverPartnerid = true;
 			}
