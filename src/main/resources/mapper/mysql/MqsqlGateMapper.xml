@@ -69,4 +69,34 @@
             ,#{partner_id}
         )
     </insert>
+
+    <insert id="insertLog" parameterType="java.util.Map">
+        INSERT INTO ecomms.t_access (
+            pcid
+            , uid
+            , kind
+            , par1
+            , par2
+            , par3
+            , par4
+            , par5
+            , par6
+            , par7
+            , par8
+            , par9
+        ) VALUES (
+            #{pcid}
+            ,#{uid}
+            ,#{par1}
+            ,#{par2}
+            ,#{par3}
+            ,#{par4}
+            ,#{par5}
+            ,#{par6}
+            ,#{par7}
+            ,#{par8}
+            ,#{par9}
+        )
+
+    </insert>
 </mapper>
