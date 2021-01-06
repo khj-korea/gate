@@ -1437,23 +1437,30 @@ public class GateServiceImpl implements GateService {
 		}
 
 		String status = "";
+		//String par1, par2, par3, par4, par5, par6, par7, par8, par9, kind;
+
 		String par1 = "", par2 = "", par3 = "", par4 = "", par5 = "", par6 = "", par7 = "", par8 = "", par9 = "", kind = "";
 
-		queryMap.put("pcid", pcid);
-		queryMap.put("uid", uid);
-		queryMap.put("kind", kind);
-		queryMap.put("par1", par1);
-		queryMap.put("par2", par2);
-		queryMap.put("par3", par3);
-		queryMap.put("par4", par4);
-		queryMap.put("par5", par5);
-		queryMap.put("par6", par6);
-		queryMap.put("par7", par7);
-		queryMap.put("par8", par8);
-		queryMap.put("par9", par9);
-		mysqlGateMapper.insertLog(queryMap);
 
-		status = "200";
+		try{
+			queryMap.put("pcid", pcid);
+			queryMap.put("uid", uid);
+			queryMap.put("kind", kind);
+			queryMap.put("par1", par1);
+			queryMap.put("par2", par2);
+			queryMap.put("par3", par3);
+			queryMap.put("par4", par4);
+			queryMap.put("par5", par5);
+			queryMap.put("par6", par6);
+			queryMap.put("par7", par7);
+			queryMap.put("par8", par8);
+			queryMap.put("par9", par9);
+			mysqlGateMapper.insertLog(queryMap);
+
+			status = "success";
+		}catch (Exception e){
+			status = "fail";
+		}
 
 		return status;
 	}
