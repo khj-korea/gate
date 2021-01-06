@@ -87,6 +87,7 @@
         ) VALUES (
             #{pcid}
             ,#{uid}
+            ,#{kind}
             ,#{par1}
             ,#{par2}
             ,#{par3}
@@ -97,6 +98,5 @@
             ,#{par8}
             ,#{par9}
         )
-
     </insert>
 </mapper>

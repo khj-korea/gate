@@ -60,5 +60,5 @@ public interface GateService {
 	public String appSchemeLP(String siteCd, String url);
 	public String deepLinkLP(String siteCd, Map<String, Object> queryMap, String lpinfo, String redirectUrl);
 
-	public String insertLog(String pcid, String uid, String par1, String par2, String par3, String par4, String par5, String par6, String par7, String par8, String par9);
+	public String getLogPage(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HttpSession httpSession) throws IOException;
 }

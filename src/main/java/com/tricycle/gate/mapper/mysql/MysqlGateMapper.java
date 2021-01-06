@@ -8,11 +8,14 @@ import java.util.Map;
 @Mapper
 public interface MysqlGateMapper {
 
-	List<Map<String, Object>> getGateMappingTables(Map<String, Object> mappingTableSearchMap);
+    List<Map<String, Object>> getGateMappingTables(Map<String, Object> mappingTableSearchMap);
 
-	int insertPartnerConnCount(Map<String, Object> partnerConnCountMap);
+    int insertPartnerConnCount(Map<String, Object> partnerConnCountMap);
 
-	Map<String, Object> getPartnerIdDetail(String partnerId);
-	
-	int insertExcptLog(Map<String, Object> excptLogMap);
+    Map<String, Object> getPartnerIdDetail(String partnerId);
+
+    int insertExcptLog(Map<String, Object> excptLogMap);
+
+    Map<String, Object> insertLog(Map<String, Object> queryMap);
+
 }

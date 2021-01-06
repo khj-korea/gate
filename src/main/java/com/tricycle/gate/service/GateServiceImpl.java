@@ -1094,7 +1094,19 @@ public class GateServiceImpl implements GateService {
 				"returnurl",
 				"isnfg",
 				"_n_m2",
-				"gseq"
+				"gseq",
+				"pcid",
+				"uid",
+				"kind",
+				"par1",
+				"par2",
+				"par3",
+				"par4",
+				"par5",
+				"par6",
+				"par7",
+				"par8",
+				"par9"
 		};
 
 		Map<String, Object> query_pairs = new LinkedHashMap<>();
@@ -1389,5 +1401,60 @@ public class GateServiceImpl implements GateService {
 		}
 
 		return redirectUrl;
+	}
+
+	@Override
+	public String getLogPage(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+
+		Boolean isHaveQueryString = null != request.getQueryString() && 0 < request.getQueryString().length();
+
+		// url_parameter (requestUri) 값 획득
+		String urlParameter = request.getQueryString();
+
+		// URL 쿼리 맵 획득
+		Map<String, Object> queryMap = null;
+		try {
+			queryMap = splitQuery(urlParameter);
+			//queryMap = splitQuery(requestUri);
+		} catch (UnsupportedEncodingException e) {
+
+		}
+
+		// pcid 쿠키 획득
+		// uid 쿠키 획득
+		String pcid = "";
+		String uid = "";
+		if (null != request.getCookies()) {
+			Cookie[] cookies = request.getCookies();
+			for (int i=0; i<cookies.length; i++) {
+				Cookie cookie = cookies[i];
+				if (cookie.getName().equals("PCID")) {
+					pcid = cookie.getValue();
+				} else if (cookie.getName().equals("UID")) {
+					uid = cookie.getValue();
+				}
+			}
+		}
+
+		String status = "";
+		String par1 = "", par2 = "", par3 = "", par4 = "", par5 = "", par6 = "", par7 = "", par8 = "", par9 = "", kind = "";
+
+		queryMap.put("pcid", pcid);
+		queryMap.put("uid", uid);
+		queryMap.put("kind", kind);
+		queryMap.put("par1", par1);
+		queryMap.put("par2", par2);
+		queryMap.put("par3", par3);
+		queryMap.put("par4", par4);
+		queryMap.put("par5", par5);
+		queryMap.put("par6", par6);
+		queryMap.put("par7", par7);
+		queryMap.put("par8", par8);
+		queryMap.put("par9", par9);
+		mysqlGateMapper.insertLog(queryMap);
+
+		status = "200";
+
+		return status;
 	}
 }
