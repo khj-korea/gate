@@ -1437,8 +1437,9 @@ public class GateServiceImpl implements GateService {
 		}
 
 		String status = "";
-		String par1, par2, par3, par4, par5, par6, par7, par8, par9, kind;
-		
+		String kind, par1, par2, par3, par4, par5, par6, par7, par8, par9;
+
+		kind = queryMap.getOrDefault("kind","").toString();
 		par1 = queryMap.getOrDefault("par1","").toString();
 		par2 = queryMap.getOrDefault("par2","").toString();
 		par3 = queryMap.getOrDefault("par3","").toString();
@@ -1448,7 +1449,6 @@ public class GateServiceImpl implements GateService {
 		par7 = queryMap.getOrDefault("par7","").toString();
 		par8 = queryMap.getOrDefault("par8","").toString();
 		par9 = queryMap.getOrDefault("par9","").toString();
-		kind = queryMap.getOrDefault("kind","").toString();
 
 		try{
 			queryMap.put("pcid", pcid);
