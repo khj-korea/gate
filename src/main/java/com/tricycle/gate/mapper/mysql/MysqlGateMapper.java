@@ -16,6 +16,6 @@ public interface MysqlGateMapper {
 
     int insertExcptLog(Map<String, Object> excptLogMap);
 
-    Map<String, Object> insertLog(Map<String, Object> queryMap);
+    int insertLog(Map<String, Object> queryMap);
 
 }
